@@ -7,13 +7,8 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
-# EvaluationSetting.current
-
-Country.find_or_create_by!(iso2: "JP") do |c|
-  c.name_ja = "日本"
-  c.name_en = "Japan"
-  c.mofa_country_code = "0001"
-  c.iso3 = "JPN"
-  c.currency_code = "JPY"
-  c.tourism_coef = BigDecimal("1")
+Country.find_or_create_by!(iso2: "KR") do |c|
+  c.name_ja = "韓国"
+  c.name_en = "Korea"
+  c.iso3 = "KOR"
 end
