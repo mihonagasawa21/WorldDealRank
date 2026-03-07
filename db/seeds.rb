@@ -7,7 +7,7 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
-EvaluationSetting.current
+# EvaluationSetting.current
 
 Country.find_or_create_by!(iso2: "JP") do |c|
   c.name_ja = "日本"
