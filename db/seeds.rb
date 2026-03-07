@@ -7,8 +7,4 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
-Country.find_or_create_by!(iso2: "KR") do |c|
-  c.name_ja = "韓国"
-  c.name_en = "Korea"
-  c.iso3 = "KOR"
-end
+CostIndex::RefreshAll.run
