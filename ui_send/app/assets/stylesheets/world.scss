@@ -1,0 +1,199 @@
+/* world.scss */
+
+/* ページ全体をGoogleっぽく中央寄せ */
+.world-page{
+  position: relative;
+  padding: 22px 0 10px;
+}
+
+
+.world-page::before{
+  content:"";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(255,255,255,0.10); /* 薄い膜。濃ければ 0.35、薄ければ 0.22 */
+  z-index: 0;
+}
+
+/* 中身を膜より上へ */
+.world-page > *{
+  position: relative;
+  z-index: 1;
+}
+
+/* タイトル中央 */
+.world-title{
+  text-align: center;
+  font-size: 28px;
+  font-weight: 900;
+  margin: 8px 0 18px;
+  color: #0b2b3a;
+}
+
+/* 検索エリアを中央に（Google風） */
+.world-search{
+  display: flex;
+  justify-content: center;
+  margin: 0 0 14px;
+}
+
+.world-search-box{
+  width: 96%;
+  max-width: 720px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.world-input{
+  flex: 1;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid #d7d7d7;
+  background: rgba(255,255,255,0.88);
+  border-radius: 0; /* 丸くしない */
+  outline: none;
+}
+
+.world-btn{
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid #005F8A;
+  background: #005F8A;
+  color: #fff;
+  border-radius: 0; /* 丸くしない */
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* 並べ替え・安全フィルタはプルダウンで */
+.world-controls{
+  width: 96%;
+  max-width: 720px;
+  margin: 0 auto 14px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.world-select{
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #111;
+  background: rgba(255,255,255,0.60);
+  border-radius: 0; 
+  font-weight: 800;
+}
+
+.world-check{
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  font-weight: 800;
+  user-select: none;
+}
+
+.world-table-wrap{
+  background: rgba(255,255,255,0.60);
+  border: 1px solid #e5e5e5;
+}
+
+.world-table{
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.world-table th,
+.world-table td{
+  padding: 10px 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.world-table th{
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  white-space: nowrap;
+}
+
+.world-right{
+  text-align: right;
+}
+/* US Pacific subareas (flat, no bullets, no radius) */
+.uspa-row td{
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.uspa-cell{
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.35);
+}
+
+.uspa-details{
+  border: 1px solid #e5e5e5;
+  background: rgba(255,255,255,0.55);
+  border-radius: 0;
+  padding: 8px 10px;
+}
+
+.uspa-summary{
+  cursor: pointer;
+  font-weight: 900;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  list-style: none;
+}
+
+.uspa-summary::-webkit-details-marker{
+  display: none;
+}
+
+.uspa-summary-sub{
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+.uspa-empty{
+  margin-top: 8px;
+  opacity: 0.8;
+}
+
+.uspa-grid{
+  margin-top: 10px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.uspa-grid-head,
+.uspa-grid-row{
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  gap: 10px;
+  padding: 8px 6px;
+}
+
+.uspa-grid-head{
+  font-weight: 900;
+  opacity: 0.85;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.uspa-grid-row{
+  border-bottom: 1px solid #efefef;
+}
+
+.uspa-name{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.uspa-right{
+  text-align: right;
+}
+.safety-note{
+  color:#d00;
+  font-size:12px;
+  margin-left:6px;
+}

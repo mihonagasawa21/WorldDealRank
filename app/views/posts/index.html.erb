@@ -1,0 +1,111 @@
+<!-- app/views/posts/index.html.erb（全文：no-media / has-media 対応版） -->
+
+<div class="posts-page posts-page--bbs">
+  <h1 class="posts-title">現地レポート</h1>
+
+  <div class="posts-toolbar posts-toolbar--tiny">
+    <div class="posts-search posts-search--tiny">
+      <%= form_with url: posts_path, method: :get, local: true,
+            class: "posts-search__form posts-search__form--tiny" do |f| %>
+
+        <%= f.text_field :q,
+              value: params[:q],
+              placeholder: "例：ロサンゼルス #ロス",
+              class: "posts-search__input posts-search__input--tiny" %>
+
+        <%= f.submit "検索", class: "posts-search__btn posts-search__btn--tiny" %>
+        <%= link_to "クリア", posts_path, class: "posts-search__clear posts-search__clear--tiny" %>
+      <% end %>
+    </div>
+
+    <% if logged_in? %>
+      <%= link_to new_post_path,
+            class: "posts-plusbtn posts-plusbtn--tiny",
+            aria: { label: "新規スレ作成" } do %>
+        <%= image_tag "icons/plus.svg", class: "posts-plusbtn__icon", alt: "" %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="posts-list posts-list--bbs">
+    <% @posts.each do |post| %>
+
+      <% att = post.attachments&.find do |a|
+           ct = a.blob.content_type.to_s
+           ct == "image/jpeg" || ct == "image/png" || ct == "image/webp" || ct == "image/gif"
+         end %>
+
+      <article class="post-card post-card--bbs post-card--reports <%= att.present? ? "has-media" : "no-media" %>">
+        <%= link_to "", post_path(post), class: "bbs-linkcover", aria: { label: "詳細へ" } %>
+
+        <div class="bbs-row bbs-row--reports">
+          <div class="bbs-prof">
+            <div class="bbs-avatar">
+              <% if post.user&.avatar&.attached? %>
+                <%= image_tag post.user.avatar, class: "bbs-avatarImg", alt: "" %>
+              <% else %>
+                <%= image_tag "icon_user.svg", class: "bbs-avatarImg", alt: "" %>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="bbs-main">
+            <div class="bbs-title"><%= post.title %></div>
+
+            <div class="bbs-subline">
+              <span class="bbs-flag" aria-hidden="true">
+                <% url = flag_twemoji_url(post.country&.iso2) %>
+                <% if url.present? %>
+                  <img src="<%= url %>" alt="" width="22" height="22">
+                <% else %>
+                  🏳️
+                <% end %>
+              </span>
+
+              <span class="bbs-country"><%= post.country&.name_ja || "未設定" %></span>
+              <span class="post-dot">·</span>
+
+              <span class="bbs-author">
+                <%= post.user&.username.presence || post.user&.name.presence || "不明" %>
+              </span>
+            </div>
+
+            <div class="bbs-excerpt bbs-excerpt--three">
+              <%= truncate(post.body.to_s, length: 180) %>
+            </div>
+
+            <% if post.tags.any? %>
+              <div class="bbs-tags">
+                <% post.tags.each do |tag| %>
+                  <%= link_to "##{tag.name}", posts_path(q: "##{tag.name}"), class: "bbs-tag" %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="bbs-media">
+            <% if att.present? %>
+              <div class="bbs-thumbwrap">
+                <%= image_tag att.variant(resize_to_limit: [360, 240]), class: "bbs-thumbimg", alt: "" %>
+              </div>
+            <% else %>
+              <div class="bbs-thumbwrap bbs-thumbwrap--empty"></div>
+            <% end %>
+          </div>
+
+          <div class="bbs-side">
+            <div class="bbs-time"><%= l(post.created_at, format: :short) %></div>
+          </div>
+
+          <div class="bbs-footer">
+            <div class="bbs-actions bbs-actions--bottom">
+              <%= render "shared/comment_button", post: post %>
+              <%= render "shared/like_button", post: post %>
+              <%= render "shared/bookmark_button", post: post %>
+            </div>
+          </div>
+        </div>
+      </article>
+    <% end %>
+  </div>
+</div>

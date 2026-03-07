@@ -1,0 +1,805 @@
+/* mypage.scss : mypage design v4 (show + edit) */
+
+.mypage-page{
+  min-height: 100vh;
+  padding: 18px 12px 32px;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+}
+
+.mypage-title{
+  text-align: center;
+  font-size: 28px;
+  font-weight: 900;
+  margin: 8px 0 16px;
+  color: #0b2b3a;
+}
+
+.mypage-card{
+  width: 100%;
+  max-width: 860px;
+  border: 1px solid rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.30);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.10);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.mypage-card__inner{
+  padding: 18px 18px 16px;
+  text-align: center;
+  position: relative;
+}
+
+/* avatar */
+.mypage-avatarWrap{
+  width: 150px;
+  height: 150px;
+  border-radius: 999px;
+  margin: 0 auto 10px;
+  border: 3px solid rgba(255,255,255,0.90);
+  background: rgba(255,255,255,0.20);
+  overflow: hidden;
+  position: relative;
+}
+
+.mypage-avatarImg{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.mypage-avatarEmpty{
+  width: 100%;
+  height: 100%;
+}
+
+.mypage-avatarPlus{
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 900;
+  font-size: 22px;
+  background: #005F8A;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.90);
+  text-decoration: none;
+}
+
+.mypage-avatarFile{
+  display: none;
+}
+
+/* name / username */
+.mypage-name{
+  font-size: 34px;
+  font-weight: 900;
+  margin: 6px 0 2px;
+  color: #0b2b3a;
+}
+
+.mypage-username{
+  font-size: 18px;
+  font-weight: 900;
+  opacity: 0.75;
+  margin: 0 0 12px;
+}
+
+/* bio / website */
+.mypage-bio{
+  font-size: 18px;
+  line-height: 1.8;
+  color: rgba(0,0,0,0.78);
+  margin: 10px auto 10px;
+  max-width: 680px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.28);
+  backdrop-filter: blur(6px);
+}
+
+.mypage-website{
+  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.mypage-website a{
+  color: #0b2b3a;
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+/* buttons row */
+.mypage-btnRow{
+  margin-top: 14px;
+  display:flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.mypage-btn{
+  min-width: 200px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.80);
+  text-decoration:none;
+  font-weight: 900;
+  color:#0b2b3a;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.mypage-btn:hover{
+  background: rgba(255,255,255,0.95);
+}
+
+.mypage-btn--primary{
+  background: #005F8A;
+  color: #fff;
+  border-color: rgba(0,0,0,0.08);
+}
+
+.mypage-btn--primary:hover{
+  opacity: 0.92;
+}
+
+/* list rows (bottom) */
+.mypage-menu{
+  border-top: 1px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.18);
+}
+
+.mypage-menuItem{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  padding: 18px 18px;
+  text-decoration: none;
+  color: #0b2b3a;
+  font-weight: 900;
+  font-size: 22px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+}
+
+.mypage-menuItem:first-child{
+  border-top: none;
+}
+
+.mypage-menuArrow{
+  font-size: 26px;
+  opacity: 0.60;
+}
+
+/* edit fields (same card look) */
+.mypage-form{
+  width: 100%;
+  max-width: 720px;
+  margin: 12px auto 0;
+  display: grid;
+  gap: 14px;
+  text-align: left;
+}
+
+.mypage-field{
+  background: rgba(255,255,255,0.22);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.45);
+  padding: 12px 14px;
+  border-radius: 10px;
+}
+
+.mypage-label{
+  font-size: 13px;
+  font-weight: 900;
+  opacity: 0.80;
+  margin-bottom: 6px;
+}
+
+.mypage-input,
+.mypage-textarea{
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.80);
+  font-size: 16px;
+}
+
+.mypage-textarea{
+  min-height: 220px; /* 自己紹介は広め */
+}
+
+/* errors */
+.profile-errors{
+  width: 100%;
+  max-width: 720px;
+  margin: 10px auto 0;
+  border: 1px solid rgba(255,0,0,0.20);
+  background: rgba(255,255,255,0.75);
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+.profile-errors__title{
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.profile-errors__text{
+  color: rgba(0,0,0,0.75);
+  font-weight: 700;
+}
+
+/* ===== mypage clean override (no blur / no rounded / solid clear) ===== */
+.mypage-clean .mypage-wrap{
+  width: 96%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.mypage-clean .mypage-avatarBlock{
+  display:flex;
+  justify-content:center;
+  margin: 6px 0 14px;
+}
+
+/* 丸アイコン：きっちり中央、ずれない */
+.mypage-clean .mypage-avatarCircle2{
+  width: 160px;
+  height: 160px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 3px solid rgba(255,255,255,0.95);
+  background: transparent;   /* クリア */
+  position: relative;
+}
+
+.mypage-clean .mypage-avatarImg2{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display:block;
+}
+
+/* no image 文字は出さない。薄いグレーの面だけ */
+.mypage-clean .mypage-avatarEmpty2{
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.10);
+}
+
+/* ＋：丸に綺麗に重ねる（ズレ対策） */
+.mypage-clean .mypage-avatarPlus2{
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 900;
+  font-size: 22px;
+  background: #005F8A;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.95);
+  text-decoration:none;
+  box-sizing: border-box;
+}
+
+.mypage-clean .mypage-avatarFile2{ display:none; }
+.mypage-clean .mypage-avatarForm2{ position:absolute; inset:0; }
+
+/* タイル：角丸なし、透明なし、blurなし。クリアに四角 */
+.mypage-clean .mypage-tile2{
+  border: 1px solid rgba(0,0,0,0.14);
+  background: rgba(255,255,255,0.92);
+  border-radius: 0;
+  padding: 14px 14px;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+/* ラベル/値 */
+.mypage-clean .mypage-label2{
+  font-size: 13px;
+  font-weight: 900;
+  opacity: 0.75;
+  margin-bottom: 8px;
+}
+
+.mypage-clean .mypage-value2{
+  font-size: 16px;
+  line-height: 1.7;
+  color: rgba(0,0,0,0.85);
+}
+
+/* 入力：同じ見た目で置換 */
+.mypage-clean .mypage-input2,
+.mypage-clean .mypage-textarea2{
+  width: 100%;
+  padding: 12px 12px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #fff;
+  border-radius: 0;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.mypage-clean .mypage-textarea2{
+  min-height: 260px; /* 自己紹介：広め */
+}
+
+/* ボタン */
+.mypage-clean .mypage-btnRow2{
+  margin: 10px 0 14px;
+  display:flex;
+  justify-content:center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mypage-clean .mypage-btn2a{
+  min-width: 220px;
+  padding: 12px 16px;
+  border: 1px solid rgba(0,0,0,0.14);
+  background: rgba(255,255,255,0.92);
+  border-radius: 0;
+  text-decoration:none;
+  font-weight: 900;
+  color:#0b2b3a;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.mypage-clean .mypage-btn2a--primary{
+  background: #005F8A;
+  color:#fff;
+  border-color: rgba(0,0,0,0.08);
+}
+
+/* 下のメニュー（行リンク） */
+.mypage-clean .mypage-nav2{
+  margin-top: 10px;
+  border: 1px solid rgba(0,0,0,0.14);
+  background: rgba(255,255,255,0.92);
+}
+
+.mypage-clean .mypage-navItem2{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  padding: 18px 16px;
+  text-decoration:none;
+  color:#0b2b3a;
+  font-weight: 900;
+  border-top: 1px solid rgba(0,0,0,0.12);
+}
+
+.mypage-clean .mypage-navItem2:first-child{ border-top:none; }
+
+.mypage-clean .mypage-navArrow2{
+  font-size: 26px;
+  opacity: 0.60;
+}
+
+/* エラー */
+.mypage-clean .mypage-errors2{
+  border: 1px solid rgba(255,0,0,0.20);
+  background: rgba(255,255,255,0.95);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+.mypage-clean .mypage-errors2__title{ font-weight: 900; margin-bottom: 6px; }
+
+/* ===== glass big box (circleの半分くらいから) ===== */
+.mypage-clean .mypage-glassBox{
+  width: 96%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 90px 18px 18px; /* 上を空けて、丸が半分かぶる */
+  border: 1px solid rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.22);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+  border-radius: 0; /* 角丸いらない */
+  position: relative;
+}
+
+/* avatar: glass boxの上に被せる */
+.mypage-clean .mypage-avatarBlock{
+  margin: 0;
+  display:flex;
+  justify-content:center;
+  position: relative;
+  z-index: 10;
+  margin-top: -140px; /* 半分以上かぶせる */
+  margin-bottom: 8px;
+}
+
+.mypage-clean .mypage-avatarCircle2{
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  overflow:hidden;
+  border: 3px solid rgba(255,255,255,0.95);
+  background: rgba(255,255,255,0.10);
+  position: relative;
+}
+
+/* no imageは人アイコン */
+.mypage-clean .mypage-avatarEmpty2{
+  width: 100%;
+  height: 100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* + は edit のときだけ出る。最前面でしっかり重ねる */
+.mypage-clean .mypage-avatarPlus2{
+  z-index: 50 !important;
+  position:absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 50px;
+  height: 50px;
+  border-radius: 999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 900;
+  font-size: 24px;
+  background: #005F8A;
+  color:#fff;
+  border: 2px solid rgba(255,255,255,0.95);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+}
+
+/* edit link under avatar */
+.mypage-clean .mypage-editLinkRow{
+  text-align: center;
+  margin: 6px 0 14px;
+}
+.mypage-clean .mypage-editLink{
+  font-weight: 900;
+  color: #0b2b3a;
+  text-decoration: underline;
+}
+.mypage-clean .mypage-editLink:hover{
+  opacity: 0.75;
+}
+
+/* tiles: つなげ気味（隙間少なめ） */
+.mypage-clean .mypage-tile2{
+  border: 1px solid rgba(0,0,0,0.14);
+  background: rgba(255,255,255,0.86);
+  border-radius: 0;
+  padding: 14px 14px;
+  margin-bottom: 8px; /* 隙間小 */
+}
+
+/* bioは縮まない（小さくできない） */
+.mypage-clean .mypage-textarea2{
+  min-height: 260px !important;
+  resize: none; /* ユーザーが小さくできない */
+}
+
+/* nav spacing */
+.mypage-clean .mypage-navSpacer{
+  height: 10px; /* 気持ちだけ空ける */
+}
+
+/* nav + hover 感激用 */
+.mypage-clean .mypage-nav2{
+  border: 1px solid rgba(0,0,0,0.14);
+  background: rgba(255,255,255,0.90);
+}
+.mypage-clean .mypage-navItem2{
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.mypage-clean .mypage-navItem2:hover{
+  background: rgba(255,255,255,1.0);
+  transform: translateY(-1px);
+}
+
+/* ===== mypage FINAL override ===== */
+.mypage-clean{
+  padding-bottom: 50px;
+}
+
+.mypage-clean .mypage-glassBox2{
+  width: 96%;
+  max-width: 720px;
+  margin: 60px auto 18px;     /* タイトル被り回避 */
+  padding: 120px 16px 16px;   /* 丸の分 */
+  border: 1px solid rgba(0,0,0,0.18);
+  background: rgba(255,255,255,0.35); /* 透明ガラス */
+  backdrop-filter: none;               /* ブラー禁止 */
+}
+
+/* 丸アイコン（中央） */
+.mypage-clean .mypage-avatarBlock2{
+  margin-top: -150px; /* ガラス板の上に乗せる */
+  display:flex;
+  justify-content:center;
+}
+
+.mypage-clean .mypage-avatarCircle2{
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(255,255,255,0.9);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.22);
+  position: relative;
+}
+
+.mypage-clean .mypage-avatarImg2{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display:block;
+}
+
+/* no image: 人SVG */
+.mypage-clean .mypage-avatarEmpty2{
+  width:100%;
+  height:100%;
+  background: rgba(255,255,255,0.08);
+  background-image: url("/assets/icon_user.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 72%;
+}
+
+/* + ボタン：必ず最前面 */
+.mypage-clean .mypage-avatarForm2{
+  position:absolute !important;
+  inset: 0 !important;
+  z-index: 40 !important;
+}
+
+/* 右下の指定が残ってるので “中央固定” をこの後で上書きする */
+.mypage-clean .mypage-avatarPlus2{
+  position:absolute !important;
+  right: 8px;
+  bottom: 8px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 900;
+  font-size: 22px;
+  background: #005F8A;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.95);
+  z-index: 9999 !important;
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.mypage-clean .mypage-avatarPlus2:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.mypage-clean .mypage-avatarFile2{
+  display:none;
+}
+
+
+.mypage-clean .mypage-editLinkRow2{
+  margin-top: 18px;
+  margin-bottom: 18px !important;
+  text-align: center;
+}
+
+.mypage-clean .mypage-editLink2{
+  font-weight: 900;
+  color: #005F8A;
+  text-decoration: underline;
+}
+
+/* タイル（表示もフォームも同じ見た目） */
+.mypage-clean .mypage-form2{
+  margin-top: 14px;
+}
+
+.mypage-clean .mypage-tile2{
+  border: 1px solid rgba(0,0,0,0.14);
+  background: rgba(255,255,255,0.55);
+  padding: 12px;
+  margin-top: 12px;
+}
+
+.mypage-clean .mypage-label2{
+  font-size: 12px;
+  font-weight: 900;
+  opacity: 0.75;
+  margin-bottom: 6px;
+}
+
+.mypage-clean .mypage-value2{
+  font-weight: 700;
+  color: rgba(0,0,0,0.82);
+  line-height: 1.6;
+}
+
+.mypage-clean .mypage-input2{
+  width: 100%;
+  padding: 10px 10px;
+  border: 1px solid rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.85);
+}
+
+.mypage-clean .mypage-textarea2{
+  width: 100%;
+  min-height: 170px; /* 自己紹介は小さくさせない */
+  padding: 10px 10px;
+  border: 1px solid rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.85);
+  resize: vertical;
+  resize: none !important;
+}
+
+/* 保存ボタン */
+.mypage-clean .mypage-btnRow2{
+  margin-top: 14px;
+  display:flex;
+  justify-content:center;
+}
+
+.mypage-clean .mypage-btn2a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding: 10px 16px;
+  border: 1px solid rgba(0,0,0,0.18);
+  background: rgba(255,255,255,0.85);
+  text-decoration:none;
+  font-weight: 900;
+  color:#0b2b3a;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.mypage-clean .mypage-btn2a:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+
+.mypage-clean .mypage-btn2a--primary{
+  background: #005F8A;
+  color: #fff;
+  border-color: rgba(0,0,0,0.08);
+}
+
+/* エラー */
+.mypage-clean .mypage-errors2{
+  border: 1px solid rgba(255,0,0,0.25);
+  background: rgba(255,255,255,0.75);
+  padding: 10px 12px;
+  margin-top: 10px;
+}
+
+.mypage-clean .mypage-errors2__title{
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+/* 低優先：投稿への導線を下げる */
+.mypage-clean .mypage-lowprioSpace{
+  height: 260px;
+}
+
+.mypage-clean .mypage-nav2{
+  border: 1px solid rgba(0,0,0,0.14);
+  background: rgba(255,255,255,0.55);
+}
+
+.mypage-clean .mypage-navItem2{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding: 14px 14px;
+  text-decoration:none;
+  color:#0b2b3a;
+  font-weight: 900;
+  border-top: 1px solid rgba(0,0,0,0.10);
+  transition: filter 0.12s ease;
+}
+
+.mypage-clean .mypage-navItem2:first-child{
+  border-top: none;
+}
+
+.mypage-clean .mypage-navItem2:hover{
+  filter: brightness(1.04);
+}
+
+.mypage-clean .mypage-navArrow2{
+  font-size: 20px;
+  opacity: 0.7;
+}
+
+/* 投稿セクション（下） */
+.mypage-clean .mypage-postSection2{
+  width: 96%;
+  max-width: 720px;
+  margin: 18px auto 0;
+}
+
+.mypage-clean .mypage-postTitle2{
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 900;
+  color:#0b2b3a;
+}
+
+/* ===== gap fix (FINAL) ===== */
+
+/* タイル同士をくっつける（名前〜リンク） */
+.mypage-clean .mypage-tile2{
+  margin-top: 0 !important;
+  border-top: none !important;
+}
+.mypage-clean .mypage-tile2:first-of-type{
+  border-top: 1px solid rgba(0,0,0,0.14) !important;
+}
+
+/* タイル群の区切り線っぽく見せる */
+.mypage-clean .mypage-tile2 + .mypage-tile2{
+  border-top: 1px solid rgba(0,0,0,0.10) !important;
+}
+
+/* リンクのタイルだけ、下に“ほんの少し”余白 */
+.mypage-clean .mypage-tile2:last-of-type{
+  margin-bottom: 10px !important;
+}
+
+/* でかい空白を消す（これが要らないと言ってたやつ） */
+.mypage-clean .mypage-lowprioSpace{
+  height: 12px !important;
+}
+
+.mypage-clean .mypage-avatarEmpty2{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(255,255,255,0.08);
+}
+
+.mypage-clean .mypage-avatarSvg2{
+  width: 72%;
+  height: 72%;
+  opacity: 0.55;
+}
+
+/* ===== 追加：＋を中央に固定（前に出ないなら真ん中） ===== */
+.mypage-clean .mypage-avatarPlus2{
+  right: auto !important;
+  bottom: auto !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 99999 !important;
+  pointer-events: auto !important;
+}

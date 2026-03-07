@@ -1,0 +1,76 @@
+<h1>マイページ</h1>
+
+<div style="padding: 12px; border: 1px solid #ddd; margin-bottom: 16px;">
+  <div style="display: flex; gap: 12px; align-items: center;">
+    <div>
+      <% if @user.avatar.attached? %>
+        <%= image_tag @user.avatar, style: "width: 72px; height: 72px; object-fit: cover; border-radius: 8px;" %>
+      <% else %>
+        <div style="width: 72px; height: 72px; border: 1px solid #ccc; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #666;">
+          no image
+        </div>
+      <% end %>
+    </div>
+
+    <div>
+      <div style="font-size: 18px;">
+        <%= @user.name %> <span style="color:#666;">(@<%= @user.username %>)</span>
+        <% if @user.verified? %>
+          <span class="verified-badge">
+            <%= icon_verified %>
+            <span>認証</span>
+          </span>
+        <% end %>
+      </div>
+      <div style="color: #666;">@<%= @user.username %></div>
+      <div style="margin-top: 6px;">
+        <%= link_to "プロフィール編集", edit_user_path(@user) %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2>自分の投稿</h2>
+<p><%= link_to new_post_path, class: "fab-plus", aria: { label: "新規投稿" } do %>
+  <%= icon_plus %>
+<% end %></p>
+
+<% @my_posts.each do |post| %>
+  <div style="padding: 10px; border: 1px solid #eee; margin-bottom: 10px;">
+    <div><%= link_to post.title, post_path(post) %></div>
+    <div style="color: #666;">国: <%= post.country&.name_ja || "未設定" %> / <%= l(post.created_at, format: :short) %></div>
+
+    <!-- ここに追加（アクション列） -->
+    <div class="post-actions">
+      <div class="action left">
+
+        <%= render "shared/like_button", post: post %>
+      </div>
+
+      <div class="action right">
+        <%= render "shared/bookmark_button", post: post %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<h2 style="margin-top: 18px;">保存した投稿</h2>
+
+<% @bookmarked_posts.each do |post| %>
+  <div style="padding: 10px; border: 1px solid #eee; margin-bottom: 10px;">
+    <div><%= link_to post.title, post_path(post) %></div>
+    <div style="color: #666;">
+      国: <%= post.country&.name_ja || "未設定" %>
+      /
+      投稿者: <%= post.user&.name || "不明" %>
+      <% if post.user&.verified? %>
+        <span class="verified-badge">
+          <%= icon_verified %>
+        </span>
+      <% end %>
+    </div>
+    <div style="margin-top: 8px;">
+      <%= render "shared/bookmark_button", post: post %>
+    </div>
+  </div>
+<% end %>

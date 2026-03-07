@@ -1,0 +1,96 @@
+<!-- app/views/layouts/application.html.erb -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WorldDealRank</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <header class="site-header2">
+      <div class="container container--wide">
+
+        <div class="header-top2">
+          <div class="header-brand">
+            <%= link_to "WorldDealRank", root_path, class: "brand2" %>
+          </div>
+
+          <div class="header-right">
+            <% if current_user %>
+              <%= link_to mypage_path, class: "toplink" do %>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 12a4 4 0 1 0-4-4a4 4 0 0 0 4 4Zm0 2c-4.4 0-8 2-8 4v2h16v-2c0-2-3.6-4-8-4Z"/>
+                </svg>
+                <span>マイページ</span>
+              <% end %>
+
+              <%= button_to session_path, method: :delete, form: { class: "inline-form" }, class: "toplink" do %>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M10 17v-2h4v-2h-4v-2l-4 3l4 3Zm9-13h-8v2h8v14h-8v2h8c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2Z"/>
+                </svg>
+                <span>ログアウト</span>
+              <% end %>
+            <% else %>
+              <%= link_to new_session_path, class: "toplink" do %>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M10 17v-2h10v-6H10V7l-4 5l4 5Zm10-15H8c-1.1 0-2 .9-2 2v3h2V4h12v16H8v-3H6v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2Z"/>
+                </svg>
+                <span>ログイン</span>
+              <% end %>
+
+              <%= link_to new_user_path, class: "toplink toplink--cta" do %>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M15 14c-3.3 0-6 1.7-6 4v2h12v-2c0-2.3-2.7-4-6-4Zm-6-4a4 4 0 1 0 0-8a4 4 0 0 0 0 8Zm9 2V9h-2V7h2V5h2v2h2v2h-2v3Z"/>
+                </svg>
+                <span>新規会員登録</span>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="header-sep"></div>
+
+        <!-- 下段：メニュー（指定どおり） -->
+        <nav class="header-nav" aria-label="サイトメニュー">
+          <%= link_to "TOP10", ranking_path, class: "header-link" %>
+          <%= link_to "条件で絞る", world_path, class: "header-link" %>
+          <%= link_to "為替計算", fx_path, class: "header-link" %>
+          <%= link_to "現地レビュー", posts_path, class: "header-link" %>
+
+          <% if current_user %>
+            <%= link_to "口コミを投稿する", new_post_path, class: "header-link header-link--cta" %>
+          <% else %>
+            <%= link_to new_user_path, class: "header-link header-link--cta" do %>
+              口コミを投稿する <span class="header-badge">[会員限定]</span>
+            <% end %>
+          <% end %>
+
+          <% unless current_user %>
+            <%= link_to "無料会員登録", new_user_path, class: "header-link header-link--cta" %>
+          <% end %>
+        </nav>
+
+      </div>
+    </header>
+
+    <main class="site-bg">
+      <div class="container container--wide">
+        <%= render "shared/flash" %>
+        <%= yield %>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container container--wide">
+        <div class="footer-left">
+          Copyright © <%= Time.current.year %> WorldDealRank. All rights reserved.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

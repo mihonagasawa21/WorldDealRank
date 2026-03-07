@@ -1,0 +1,47 @@
+<div class="fx-page">
+  <h1 class="fx-title">為替計算</h1>
+
+  <div class="fx-card">
+    <%= form_with url: fx_path, method: :get, local: true do %>
+      <div class="fx-row">
+        <div class="fx-field">
+          <div class="fx-label">金額</div>
+          <%= text_field_tag :amount, @amount_str, inputmode: "decimal", class: "fx-input fx-input--amount" %>
+        </div>
+
+        <div class="fx-field">
+          <div class="fx-label">From</div>
+          <%= select_tag :from, options_for_select(@currency_options_from, @from), class: "fx-select" %>
+        </div>
+
+        <div class="fx-arrow">→</div>
+
+        <div class="fx-field">
+          <div class="fx-label">To</div>
+          <%= select_tag :to,   options_for_select(@currency_options_to,   @to),   class: "fx-select" %>
+        </div>
+
+        <div class="fx-field fx-field--submit">
+          <%= submit_tag "計算", class: "fx-btn" %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @error.present? %>
+      <div class="fx-error"><%= @error %></div>
+    <% end %>
+
+    <% if @converted_amount.present? %>
+      <div class="fx-result">
+        <div class="fx-result__meta">結果（基準日: <%= @rate_date %>）</div>
+        <div class="fx-result__main">
+          <%= @amount_str %> <%= currency_ja(@from) %> →
+          <%= @converted_amount.to_s("F") %> <%= currency_ja(@to) %>
+        </div>
+        <div class="fx-result__sub">
+          1 <%= currency_ja(@from) %> = <%= @rate_per_1.to_s("F") %> <%= currency_ja(@to) %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

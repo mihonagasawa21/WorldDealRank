@@ -1,0 +1,115 @@
+<div class="mypage-page mypage-clean">
+  <h1 class="mypage-title">マイページ</h1>
+
+  <% edit = (params[:edit] == "1") %>
+
+  <div class="mypage-glassBox2">
+
+    <!-- 头像 -->
+    <div class="mypage-avatarBlock2">
+      <div class="mypage-avatarCircle2">
+        <% if @user.avatar.attached? %>
+          <%= image_tag @user.avatar, class: "mypage-avatarImg2" %>
+        <% else %>
+          <div class="mypage-avatarEmpty2">
+           <%= image_tag "icon_user.svg", class: "mypage-avatarSvg2", alt: "" %>
+          </div>
+        <% end %>
+
+        <% if edit %>
+          <%= form_with model: @user, url: user_path(@user), method: :patch, local: true,
+                html: { multipart: true }, class: "mypage-avatarForm2" do |f| %>
+            <label class="mypage-avatarPlus2" title="アイコンを変更">
+              +
+              <%= f.file_field :avatar, accept: "image/*", class: "mypage-avatarFile2",
+                    onchange: "this.form.submit()" %>
+            </label>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- 編集リンク（小さく一段） -->
+    <div class="mypage-editLinkRow2">
+      <% if edit %>
+        <%= link_to "キャンセル", mypage_path, class: "mypage-editLink2" %>
+      <% else %>
+        <%= link_to "プロフィールを編集", mypage_path(edit: 1), class: "mypage-editLink2" %>
+      <% end %>
+    </div>
+
+    <!-- プロフィール（表示/編集トグルで同じ場所が入れ替わる） -->
+    <% if edit %>
+      <%= form_with model: @user, url: user_path(@user), method: :patch, local: true, class: "mypage-form2" do |f| %>
+
+        <% if @user.errors.any? %>
+          <div class="mypage-errors2">
+            <div class="mypage-errors2__title">入力エラーがあります</div>
+            <div class="mypage-errors2__text"><%= @user.errors.full_messages.join("／") %></div>
+          </div>
+        <% end %>
+
+        <div class="mypage-tile2">
+          <div class="mypage-label2">名前</div>
+          <%= f.text_field :name, class: "mypage-input2" %>
+        </div>
+
+        <div class="mypage-tile2">
+          <div class="mypage-label2">ユーザー名</div>
+          <%= f.text_field :username, class: "mypage-input2" %>
+        </div>
+
+        <div class="mypage-tile2">
+          <div class="mypage-label2">自己紹介</div>
+          <%= f.text_area :bio, class: "mypage-textarea2" %>
+        </div>
+
+        <div class="mypage-tile2">
+          <div class="mypage-label2">リンク</div>
+          <%= f.url_field :website, class: "mypage-input2", placeholder: "https://" %>
+        </div>
+
+        <div class="mypage-btnRow2">
+          <%= f.submit "保存", class: "mypage-btn2a mypage-btn2a--primary" %>
+        </div>
+      <% end %>
+
+    <% else %>
+      <div class="mypage-tile2 mypage-show2">
+        <div class="mypage-label2">名前</div>
+        <div class="mypage-value2"><%= @user.name.to_s %></div>
+      </div>
+
+      <div class="mypage-tile2 mypage-show2">
+        <div class="mypage-label2">ユーザー名</div>
+        <div class="mypage-value2">@<%= @user.username.to_s %></div>
+      </div>
+
+      <div class="mypage-tile2 mypage-show2">
+        <div class="mypage-label2">自己紹介</div>
+        <div class="mypage-value2"><%= simple_format(h(@user.bio.to_s)) %></div>
+      </div>
+
+      <div class="mypage-tile2 mypage-show2">
+        <div class="mypage-label2">リンク</div>
+        <div class="mypage-value2">
+          <% if @user.website.present? %>
+            <%= link_to @user.website, @user.website, target: "_blank", rel: "noopener" %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- 追加：リンクの下に導線 -->
+      <div class="mypage-nav2">
+        <%= link_to posts_path(q: "", mine: 1), class: "mypage-navItem2" do %>
+          <span>自分の投稿</span><span class="mypage-navArrow2">›</span>
+        <% end %>
+
+        <%= link_to posts_path(q: "", bookmarked: 1), class: "mypage-navItem2" do %>
+          <span>保存した投稿</span><span class="mypage-navArrow2">›</span>
+        <% end %>
+      </div>
+    <% end %>
+
+  </div>
+</div>

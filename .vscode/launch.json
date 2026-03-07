@@ -1,0 +1,18 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Rails server (REFRESH=600)",
+      "type": "shell",
+      "command": "bin/rails",
+      "args": ["server"],
+      "options": {
+        "env": {
+          "REFRESH_FAST_MIN_INTERVAL_SECONDS": "600",
+          "RAILS_ENV": "development"
+        }
+      },
+      "problemMatcher": []
+    }
+  ]
+}

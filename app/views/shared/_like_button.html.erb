@@ -1,0 +1,11 @@
+<% return unless logged_in? %>
+<% liked = current_user.likes.exists?(post_id: post.id) %>
+
+<%= button_to post_like_path(post),
+              method: (liked ? :delete : :post),
+              class: "icon-btn #{liked ? 'is-active' : ''}",
+              form: { data: { turbo: false } },
+              aria: { label: "いいね" } do %>
+  <span class="icon"><%= icon_like(filled: liked) %></span>
+  <span class="bbs-count"><%= post.likes.count %></span>
+<% end %>

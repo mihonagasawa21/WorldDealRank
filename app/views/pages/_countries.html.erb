@@ -1,0 +1,108 @@
+<table style="width:100%; border-collapse: collapse;">
+  <thead>
+    <tr>
+      <th style="text-align:left; border-bottom:1px solid #ddd; padding:8px;">ISO3</th>
+      <th style="text-align:left; border-bottom:1px solid #ddd; padding:8px;">国名</th>
+      <th style="text-align:left; border-bottom:1px solid #ddd; padding:8px;">為替</th>
+      <th style="text-align:right; border-bottom:1px solid #ddd; padding:8px;">指数</th>
+      <th style="text-align:right; border-bottom:1px solid #ddd; padding:8px;">総合点</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% parents.each do |c| %>
+      <% sc = scores[c.id] || {} %>
+      <% meta = safety_meta_by_id[c.id] || {} %>
+
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><%= c.iso3 %></td>
+
+        <td style="padding:8px; border-bottom:1px solid #eee;">
+          <div>
+            <span><%= c.name_ja %></span>
+            <span style="color:#666;">(<%= c.name_en %>)</span>
+          </div>
+
+          <div style="color:#666; font-size:12px; margin-top:2px;">
+            <% if sc[:popular_unknown] %>
+              安さ:<%= sc[:cheap] %>　人気:測定不能　安全:<%= sc[:safety] %>
+            <% else %>
+              安さ:<%= sc[:cheap] %>　人気:<%= sc[:popular] %>　安全:<%= sc[:safety] %>
+            <% end %>
+          </div>
+
+          <div style="color:#666; font-size:12px; margin-top:2px;">
+            <% best = meta[:best_safe_level] %>
+            <% if best.nil? %>
+              安全:危険情報なし
+            <% else %>
+              安全:レベル<%= best %>
+            <% end %>
+
+            <% if meta[:has_high] %>
+              <span style="color:#b35; margin-left:8px;">
+                注意: 一部地域はレベル<%= meta[:max_level] %>
+              </span>
+            <% end %>
+
+            <span style="margin-left:8px;">
+              在留邦人数:<%= c.jp_resident_ui %> <%= c.jp_resident_meta_text %>
+            </span>
+          </div>
+        </td>
+
+        <td style="padding:8px; border-bottom:1px solid #eee; white-space:nowrap;">
+          <% cur = c.currency_code.to_s.upcase.presence || "-" %>
+          1 <%= cur %> = <%= c.fx_jpy_text(@japan) %> 円
+        </td>
+
+        <td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">
+          <%= c.final_index_ui %>
+        </td>
+
+        <td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">
+          <% if sc[:recommend].nil? %>
+            -
+          <% else %>
+            <%= sc[:recommend] %>
+          <% end %>
+        </td>
+      </tr>
+
+      <% if show_areas %>
+        <% children = children_by_parent[c.id] || [] %>
+        <% children.each do |a| %>
+          <tr>
+            <td style="padding:6px 8px; border-bottom:1px solid #f3f3f3; color:#666;"></td>
+
+            <td style="padding:6px 8px; border-bottom:1px solid #f3f3f3; color:#444;">
+              <div style="padding-left:14px;">
+                地域: <%= a.name_ja %>
+                <span style="color:#666;">(<%= a.name_en %>)</span>
+              </div>
+              <div style="padding-left:14px; color:#666; font-size:12px; margin-top:2px;">
+                安全:<%= a.safety_label %>
+                <% if !a.jp_resident_count.nil? %>
+                  <span style="margin-left:8px;">在留邦人数:<%= a.jp_resident_ui %> <%= a.jp_resident_meta_text %></span>
+                <% end %>
+              </div>
+            </td>
+
+            <td style="padding:6px 8px; border-bottom:1px solid #f3f3f3; color:#666; white-space:nowrap;">
+              <% cur = a.currency_code.to_s.upcase.presence || "-" %>
+              1 <%= cur %> = <%= a.fx_jpy_text(@japan) %> 円
+            </td>
+
+            <td style="padding:6px 8px; border-bottom:1px solid #f3f3f3; text-align:right; color:#666;">
+              <%= a.final_index_ui %>
+            </td>
+
+            <td style="padding:6px 8px; border-bottom:1px solid #f3f3f3; text-align:right; color:#666;">
+              -
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    <% end %>
+  </tbody>
+</table>

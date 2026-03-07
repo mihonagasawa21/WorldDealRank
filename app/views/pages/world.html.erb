@@ -1,0 +1,88 @@
+<div class="world-page">
+
+  <h1 class="world-title">国一覧を見る</h1>
+
+  <%= form_with url: world_path, method: :get, local: true do |f| %>
+
+    <div class="world-search">
+      <div class="world-search-box">
+        <%= f.text_field :q, value: @q, placeholder: "国名やISO3で検索", class: "world-input" %>
+        <%= f.submit "検索", class: "world-btn" %>
+      </div>
+    </div>
+
+    <div class="world-controls">
+      <%= f.select :sort,
+            [["ランキング順", "rank"], ["安さ", "cheap"], ["人気", "popular"], ["名前", "name"]],
+            { selected: (@sort.presence || "rank") },
+            { class: "world-select", onchange: "this.form.submit()" } %>
+
+      <%= f.select :safety,
+            [["危険情報なし", "none"], ["危険情報なし + 1", "lv1"]],
+            { selected: (@safety.presence || "none") },
+            { class: "world-select", onchange: "this.form.submit()" } %>
+    </div>
+
+  <% end %>
+
+  <div class="world-table-wrap">
+    <table class="world-table">
+      <thead>
+        <tr>
+          <th>国</th>
+          <th>ISO3</th>
+          <th>危険レベル</th>
+          <th class="world-right">総合点</th>
+          <th class="world-right">人気評価</th>
+          <th class="world-right">安さ評価</th>
+          <th class="world-right">在留邦人数</th>
+          <th class="world-right">指数</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @countries.each do |c| %>
+          <% s = @score_map[c.id] || {} %>
+          <tr>
+            <td>
+              <% url = flag_twemoji_url(c.iso2) %>
+              <% if url.present? %>
+                <img src="<%= url %>" alt="" width="20" height="20" style="vertical-align:-3px;margin-right:6px;">
+              <% end %>
+            <%= c.name_ja %>  
+            </td>
+
+            <td><%= c.iso3.presence || "-" %></td>
+
+            <td>
+              <span style="<%= safety_style(c) %>"><%= safety_text(c) %></span>
+              <% wt = warn_text(c) %>
+              <% if wt.present? %>
+                <span class="safety-note safety-note--right"><%= wt %></span>
+              <% end %>
+            </td>
+
+            <td class="world-right"><%= total_score_text(s) %></td>
+            <td class="world-right"><%= popular_text(c, s[:popular]) %></td>
+            <td class="world-right"><%= s[:cheap].nil? ? "-" : s[:cheap].to_i %></td>
+
+            <td class="world-right">
+              <%= c.jp_resident_ui %>
+            </td>
+
+            <td class="world-right"><%= c.final_index_ui %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="calc-note">
+    <small>
+      総合評価は、安さ評価60%と人気評価40%の加重平均を四捨五入した値です。
+      安さ評価は指数（日本=100）を基に正規化、人気評価は海外在留邦人数を基に正規化しています。
+      人気データがない国は人気評価を測定不能として、総合評価は算出しません。
+    </small>
+  </div>
+
+</div>

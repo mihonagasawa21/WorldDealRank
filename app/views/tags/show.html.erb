@@ -1,0 +1,18 @@
+<div class="posts-page">
+  <h1 class="posts-title">#<%= @tag.name %></h1>
+
+  <% @posts.each do |post| %>
+    <div class="post-card">
+      <div class="post-card__title"><%= link_to post.title, post_path(post) %></div>
+      <div class="post-meta">
+        国: <%= post.country&.name_ja || "未設定" %> /
+        <%= l(post.created_at, format: :short) %>
+      </div>
+      <div class="post-body"><%= truncate(post.body.to_s, length: 140) %></div>
+    </div>
+  <% end %>
+
+  <p class="post-back post-back--bottom">
+    <%= link_to "一覧へ戻る", posts_path %>
+  </p>
+</div>

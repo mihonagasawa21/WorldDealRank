@@ -1,0 +1,72 @@
+<h1>管理 設定</h1>
+
+<%= form_with model: @setting, url: admin_setting_path, method: :patch, local: true do |f| %>
+  <% if @setting.errors.any? %>
+    <div class="flash flash-alert">
+      保存に失敗しました
+    </div>
+  <% end %>
+
+  <div class="form-grid">
+    <div class="field">
+      <%= f.label :top_n, "トップ表示数" %>
+      <%= f.number_field :top_n, step: 1, min: 1 %>
+    </div>
+
+    <div class="field checkbox">
+      <label>
+        <%= f.check_box :include_level2 %>
+        トップでレベル2も含める
+      </label>
+    </div>
+
+    <div class="field">
+      <%= f.label :weight_cost, "重み cost" %>
+      <%= f.number_field :weight_cost, step: "0.1" %>
+    </div>
+
+    <div class="field">
+      <%= f.label :bonus_level1, "加点 レベル1" %>
+      <%= f.number_field :bonus_level1, step: "0.1" %>
+    </div>
+
+    <div class="field">
+      <%= f.label :penalty_level2, "減点 レベル2" %>
+      <%= f.number_field :penalty_level2, step: "0.1" %>
+    </div>
+
+    <div class="field">
+      <%= f.label :stale_fx_days, "為替の期限 日" %>
+      <%= f.number_field :stale_fx_days, step: 1, min: 0 %>
+    </div>
+
+    <div class="field">
+      <%= f.label :stale_fx_penalty, "為替の減点" %>
+      <%= f.number_field :stale_fx_penalty, step: "0.1" %>
+    </div>
+
+    <div class="field">
+      <%= f.label :stale_calc_hours, "計算の期限 時間" %>
+      <%= f.number_field :stale_calc_hours, step: 1, min: 0 %>
+    </div>
+
+    <div class="field">
+      <%= f.label :stale_calc_penalty, "計算の減点" %>
+      <%= f.number_field :stale_calc_penalty, step: "0.1" %>
+    </div>
+
+    <div class="field">
+      <%= f.label :grade_a_min, "評価A しきい値" %>
+      <%= f.number_field :grade_a_min, step: "0.1" %>
+    </div>
+
+    <div class="field">
+      <%= f.label :grade_b_min, "評価B しきい値" %>
+      <%= f.number_field :grade_b_min, step: "0.1" %>
+    </div>
+  </div>
+
+  <div class="actions">
+    <%= f.submit "保存", class: "btn" %>
+  </div>
+<% end %>

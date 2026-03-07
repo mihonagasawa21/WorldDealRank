@@ -1,0 +1,11 @@
+<% return unless logged_in? %>
+
+<% saved = current_user.bookmarks.exists?(post_id: post.id) %>
+
+<%= button_to post_bookmark_path(post),
+              method: (saved ? :delete : :post),
+              class: "icon-btn #{saved ? 'saved' : ''}",
+              form: { data: { turbo: false } },
+              aria: { label: "保存" } do %>
+  <span class="icon"><%= icon_bookmark(filled: saved) %></span>
+<% end %>

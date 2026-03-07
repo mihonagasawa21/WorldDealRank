@@ -1,0 +1,78 @@
+<h1 class="top10-title">
+  注目旅行先ランキング <span class="top10-title-sub">TOP10</span>
+</h1>
+
+<div class="top10-wrap page-ranking">
+  <!-- 1〜3位 -->
+  <div class="top10-grid top10-grid--top3">
+    <% @recommended.first(3).each_with_index do |c, i| %>
+      <% s = @score_map[c.id] || {} %>
+      <% rec = rank_value(c) %>
+
+      <section class="top10-item">
+        <div class="top10-item-head">
+          <div class="top10-rank top10-rank--<%= i + 1 %>">
+            <%= i + 1 %><span>位</span>
+          </div>
+
+          <div class="top10-name">
+            <% url = flag_twemoji_url(c.iso2) %>
+            <% if url.present? %>
+              <img src="<%= url %>" alt="" width="22" height="22">
+            <% end %>
+            <span><%= c.name_ja %></span>
+          </div>
+
+          <div class="top10-score">
+            <%= rec.nil? ? "-" : format("%.1f", rec.to_f) %><span>/100</span>
+          </div>
+        </div>
+
+        <% if c.photo_url.present? %>
+          <div class="top10-photo" style="background-image:url('<%= c.photo_url %>')"></div>
+        <% else %>
+          <div class="top10-photo top10-photo--empty"></div>
+        <% end %>
+      </section>
+    <% end %>
+  </div>
+
+  <!-- 4〜10位（7個を均等に） -->
+  <div class="top10-grid top10-grid--rest">
+    <% @recommended.drop(3).each_with_index do |c, idx| %>
+      <% i = idx + 3 %>
+      <% s = @score_map[c.id] || {} %>
+      <% rec = rank_value(c) %>
+
+      <section class="top10-item top10-item--small">
+        <div class="top10-item-head">
+          <div class="top10-rank">
+            <%= i + 1 %><span>位</span>
+          </div>
+
+          <div class="top10-name">
+            <% url = flag_twemoji_url(c.iso2) %>
+            <% if url.present? %>
+              <img src="<%= url %>" alt="" width="18" height="18">
+            <% end %>
+            <span><%= c.name_ja %></span>
+            <% wt = warn_text(c) %>
+            <% if wt.present? %>
+              <span class="safety-note safety-note--right"><%= wt %></span>
+            <% end %>
+          </div>
+
+          <div class="top10-score">
+            <%= rec.nil? ? "-" : format("%.1f", rec.to_f) %><span>/100</span>
+          </div>
+        </div>
+
+        <% if c.photo_url.present? %>
+          <div class="top10-photo" style="background-image:url('<%= c.photo_url %>')"></div>
+        <% else %>
+          <div class="top10-photo top10-photo--empty"></div>
+        <% end %>
+      </section>
+    <% end %>
+  </div>
+</div>

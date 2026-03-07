@@ -1,0 +1,44 @@
+<h1>新規登録</h1>
+<p><%= link_to "ログインへ", new_auth_path %></p>
+
+<%= form_with model: @user, url: users_path do |f| %>
+  <% if @user.errors.any? %>
+    <div style="padding: 10px; border: 1px solid #f99; margin-bottom: 12px;">
+      <div>入力エラーがあります</div>
+      <ul>
+        <% @user.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div style="margin-bottom: 10px;">
+    <%= f.label :name, "表示名" %><br>
+    <%= f.text_field :name, style: "width: 100%;" %>
+  </div>
+
+  <div style="margin-bottom: 10px;">
+    <%= f.label :email, "メールアドレス" %><br>
+    <%= f.email_field :email, style: "width: 100%;" %>
+  </div>
+
+  <div style="margin-bottom: 10px;">
+    <%= f.label :password, "パスワード" %><br>
+    <%= f.password_field :password, style: "width: 100%;" %>
+  </div>
+
+  <div style="margin-bottom: 10px;">
+    <%= f.label :password_confirmation, "パスワード確認" %><br>
+    <%= f.password_field :password_confirmation, style: "width: 100%;" %>
+  </div>
+
+  <div style="margin-bottom: 10px;">
+    <%= f.label :avatar, "プロフィール画像" %><br>
+    <%= f.file_field :avatar %>
+  </div>
+
+  <div>
+    <%= f.submit "登録する" %>
+  </div>
+<% end %>

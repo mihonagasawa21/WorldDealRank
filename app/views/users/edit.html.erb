@@ -1,0 +1,59 @@
+<div class="profile-shell">
+  <h1 class="profile-title">プロフィール設定</h1>
+
+  <%= form_with model: @user, url: user_path(@user), method: :patch, local: true, html: { multipart: true }, class: "profile-form" do |f| %>
+
+    <% if @user.errors.any? %>
+      <div class="profile-errors">
+        <div class="profile-errors__title">入力エラーがあります</div>
+        <div class="profile-errors__text"><%= @user.errors.full_messages.join("／") %></div>
+      </div>
+    <% end %>
+
+    <div class="profile-avatarArea">
+      <div class="profile-avatarCircle">
+        <% if @user.avatar.attached? %>
+          <%= image_tag @user.avatar, class: "profile-avatarImg" %>
+        <% else %>
+          <div class="profile-avatarEmpty">no image</div>
+        <% end %>
+
+        <label class="profile-avatarPlus" title="画像を変更">
+          +
+          <%= f.file_field :avatar, accept: "image/*", class: "profile-avatarFile" %>
+        </label>
+      </div>
+    </div>
+
+    <div class="profile-tiles">
+      <div class="profile-tile">
+        <div class="profile-label">名前（ニックネーム）</div>
+        <%= f.text_field :name, class: "profile-input", placeholder: "例：みほ", autocomplete: "name" %>
+        <div class="profile-hint">表示に使う名前です。あとで変更できます。</div>
+      </div>
+
+      <div class="profile-tile">
+        <div class="profile-label">ユーザー名（@用）</div>
+        <%= f.text_field :username, class: "profile-input", placeholder: "例：miho_0721", autocomplete: "username" %>
+        <div class="profile-hint">英数字と「.」「_」が使用できます（先頭末尾は英数字）。</div>
+      </div>
+
+      <div class="profile-tile">
+        <div class="profile-label">自己紹介</div>
+        <%= f.text_area :bio, class: "profile-textarea", rows: 5, placeholder: "例：旅行とカフェ巡りが好き。おトク情報集めてます。" %>
+      </div>
+
+      <div class="profile-tile">
+        <div class="profile-label">リンク（インスタなど）</div>
+        <%= f.url_field :website, class: "profile-input", placeholder: "https://", inputmode: "url" %>
+        <div class="profile-hint">インスタのプロフィールURLでもOKです。</div>
+      </div>
+    </div>
+
+    <div class="profile-actions">
+      <%= f.submit "保存", class: "profile-btn profile-btn--primary" %>
+      <%= link_to "戻る", mypage_path, class: "profile-btn" %>
+    </div>
+
+  <% end %>
+</div>

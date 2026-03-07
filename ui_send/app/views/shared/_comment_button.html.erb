@@ -1,0 +1,4 @@
+<%= link_to post_path(post, anchor: "comments"), class: "icon-btn", aria: { label: "コメント" } do %>
+  <span class="icon"><%= icon_comment %></span>
+  <span class="tw-count"><%= post.comments.size %></span>
+<% end %>

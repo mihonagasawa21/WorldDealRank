@@ -1,0 +1,21 @@
+<div class="mypage-page">
+  <h1 class="mypage-title">保存した投稿</h1>
+  <div class="mypage-actionsRow">
+    <%= link_to "マイページへ戻る", mypage_path, class: "mypage-btn2" %>
+  </div>
+
+  <div class="mypage-list">
+    <% @bookmarked_posts.each do |post| %>
+      <article class="mypage-card mypage-post">
+        <div class="mypage-post__title">
+          <%= link_to post.title, post_path(post), class: "mypage-post__link" %>
+        </div>
+        <div class="mypage-post__meta">
+          国: <span class="mypage-post__meta-strong"><%= post.country&.name_ja || "未設定" %></span>
+          <span class="mypage-dot">/</span>
+          投稿者: <span class="mypage-post__meta-strong"><%= post.user&.name || post.user&.username || "不明" %></span>
+        </div>
+      </article>
+    <% end %>
+  </div>
+</div>

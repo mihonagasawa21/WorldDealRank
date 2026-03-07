@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  country: one
+  name: MyString
+  iso_code: MyString
+  mofa_region_code: MyString
+  safety_risk_level: 1
+  safety_infection_level: 1
+  safety_max_level: 1
+  safety_source_updated_at: 2026-03-02 04:49:59
+  safety_fetched_at: 2026-03-02 04:49:59
+
+two:
+  country: two
+  name: MyString
+  iso_code: MyString
+  mofa_region_code: MyString
+  safety_risk_level: 1
+  safety_infection_level: 1
+  safety_max_level: 1
+  safety_source_updated_at: 2026-03-02 04:49:59
+  safety_fetched_at: 2026-03-02 04:49:59

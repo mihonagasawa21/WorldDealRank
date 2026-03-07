@@ -1,0 +1,106 @@
+/* sessions.scss */
+
+/* ページ全体 */
+.session-page{
+  position: relative;
+  padding: 22px 0 10px;
+}
+
+/* 薄い膜 */
+.session-page::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background: rgba(255,255,255,0.10);
+  z-index:0;
+}
+
+.session-page > *{
+  position:relative;
+  z-index:1;
+}
+
+/* 中央寄せ */
+.session-wrap{
+  display:flex;
+  justify-content:center;
+  padding: 0 16px; 
+}
+
+/* カード */
+.session-card{
+  width:96%;
+  max-width:560px;
+  padding:18px 20px;
+  background: rgba(255,255,255,0.35);
+  border: 1px solid rgba(255,255,255,0.45);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.10);
+}
+
+.session-title{
+  text-align:center;
+  font-size:28px;
+  font-weight:900;
+  margin:0px 0 18px;
+  color:#0b2b3a;
+}
+
+/* フィールド */
+.session-field{
+  display:grid;
+  gap:6px;
+  margin-bottom:14px;
+}
+
+.session-label{
+  font-size:12px;
+  opacity:0.75;
+  font-weight:800;
+}
+
+.session-input{
+  height:44px;
+  padding:0 12px;
+  border:1px solid rgba(0,0,0,0.14);
+  background: rgba(255,255,255,0.92);
+  border-radius:0;
+  outline:none;
+}
+
+.session-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:44px;
+  width:100%;
+  border:0;
+  border-radius:0;
+  cursor:pointer;
+  color:#fff;
+  font-weight:800;
+  text-decoration:none;
+  line-height:44px;   /* ← これが重要 */
+  padding:0;          /* ← 念のため */
+}
+/* ログイン */
+.session-btn--login{
+  background: var(--header-bg, #005F8A);
+  margin-top: 8px;margin-top: 8px; 
+}
+
+/* 新規登録 */
+.session-btn--signup{
+  background:#111;
+  margin-top:12px;
+}
+
+.session-btn:hover{
+  filter:brightness(0.95);
+}
+.session-btn--signup{
+  background:#111;
+  margin-top:12px;
+  display:block;
+  text-align:center;
+}

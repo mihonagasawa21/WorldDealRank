@@ -1,0 +1,11 @@
+<div class="posts-page">
+  <h1 class="posts-title">新規投稿</h1>
+
+  <%= render "form", post: @post %>
+
+  <div style="margin-bottom: 10px;"></div>
+
+  <p class="post-back post-back--bottom">
+    <%= link_to "一覧へ戻る", posts_path, class: "posts-backlink" %>
+  </p>
+</div>

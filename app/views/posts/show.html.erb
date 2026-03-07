@@ -1,0 +1,103 @@
+<div class="posts-page">
+  <h1 class="posts-title"><%= @post.title %></h1>
+
+  <p class="post-meta">
+    国: <%= @post.country&.name_ja || "未設定" %>
+    /
+    投稿者: <%= @post.user&.username.presence || @post.user&.name.presence || @post.user&.email || "不明" %>
+    <% if @post.user&.verified? %>
+      <span class="post-verified"><%= icon("verified", class_name: "icon") %></span>
+    <% end %>
+    /
+    <%= l(@post.created_at, format: :short) %>
+  </p>
+
+  <div class="post-body-box post-body-box--bbs">
+    <div class="bbs-postrow">
+      <div class="bbs-postno">1</div>
+      <div class="bbs-postbody">
+        <div class="post-body-show"><%= @post.body %></div>
+      </div>
+    </div>
+  </div>
+
+  <% if @post.tags.any? %>
+    <div class="post-tags-box">
+      <div class="post-tags__label">ハッシュタグ</div>
+      <div class="post-tags">
+        <% @post.tags.each do |tag| %>
+          <%= link_to "##{tag.name}", posts_path(q: "##{tag.name}"), class: "post-tag" %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @post.attachments.attached? %>
+    <div class="post-attachments">
+      <h2 class="post-attachments__title">添付</h2>
+      <% @post.attachments.each do |att| %>
+        <% ct = att.blob.content_type.to_s %>
+        <div class="post-attachment">
+          <% if ct.start_with?("image/") %>
+            <%= image_tag att %>
+          <% elsif ct.start_with?("video/") %>
+            <%= video_tag url_for(att), controls: true %>
+          <% else %>
+            <%= link_to att.filename.to_s, url_for(att) %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div id="comments"></div>
+
+  <div class="comments-box comments-box--bbs">
+    <div class="comments-title">レス</div>
+
+    <% if logged_in? %>
+      <%= form_with model: [@post, Comment.new], local: true, class: "comments-form" do |f| %>
+        <%= f.text_area :body, rows: 3, class: "comments-input", placeholder: "レスを書く" %>
+        <%= f.submit "送信", class: "comments-btn" %>
+      <% end %>
+    <% else %>
+      <div class="comments-login-note">レスするにはログインしてください</div>
+    <% end %>
+
+    <div class="comments-list comments-list--bbs">
+      <% @post.comments.includes(:user).order(created_at: :asc).each_with_index do |c, i| %>
+        <div class="comment comment--bbs">
+          <div class="comment-meta">
+            <span class="comment-no"><%= i + 2 %></span>
+            <span class="comment-author"><%= c.user&.username.presence || c.user&.name.presence || c.user&.email || "不明" %></span>
+            <span class="post-dot">·</span>
+            <span class="comment-time"><%= l(c.created_at, format: :short) %></span>
+
+            <% if logged_in? && c.user_id == current_user.id %>
+              <span class="post-dot">·</span>
+              <%= button_to "削除", post_comment_path(@post, c), method: :delete, class: "comment-del", form: { class: "inline" } %>
+            <% end %>
+          </div>
+
+          <div class="comment-body"><%= c.body %></div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="post-actions-row">
+    <div>
+      <%= render "shared/bookmark_button", post: @post %>
+    </div>
+
+    <div class="post-back post-back--bottom">
+      <%= link_to "一覧へ戻る", posts_path %>
+      <% if logged_in? && current_user.id == @post.user_id %>
+        <span class="post-back__sep"> | </span>
+        <%= link_to "編集", edit_post_path(@post) %>
+        <span class="post-back__sep"> | </span>
+        <%= button_to "削除", post_path(@post), method: :delete, data: { turbo_confirm: "削除しますか" }, class: "post-btn--danger" %>
+      <% end %>
+    </div>
+  </div>
+</div>

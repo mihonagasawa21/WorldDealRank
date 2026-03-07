@@ -1,0 +1,16 @@
+<% if sort == "cheap" %>
+  <% v = scores[:cheap] %>
+  安さ:<%= v.nil? ? "-" : "#{v}/100" %>
+<% elsif sort == "popular" %>
+  <% v = scores[:popular] %>
+  人気:<%= v.nil? ? "-" : "#{v}/100" %>
+<% else %>
+  <% r = scores[:recommend] %>
+  <% c = scores[:cheap] %>
+  <% p = scores[:popular] %>
+  <% if r.nil? %>
+    -
+  <% else %>
+    総合:<%= r %>/100（安さ<%= c %>/人気<%= p %>）
+  <% end %>
+<% end %>

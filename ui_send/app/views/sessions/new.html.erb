@@ -1,0 +1,18 @@
+<h1>ログイン</h1>
+<p><%= link_to "新規登録へ", new_user_path %></p>
+
+<%= form_with url: auth_path, method: :post do %>
+  <div style="margin-bottom: 10px;">
+    <label for="email">メールアドレス</label><br>
+    <input id="email" name="email" type="email" style="width: 100%;" />
+  </div>
+
+  <div style="margin-bottom: 10px;">
+    <label for="password">パスワード</label><br>
+    <input id="password" name="password" type="password" style="width: 100%;" />
+  </div>
+
+  <div>
+    <button type="submit">ログイン</button>
+  </div>
+<% end %>

@@ -1,0 +1,116 @@
+.fx-page {
+  min-height: 100vh;
+  padding-top: 22px;
+  padding-left: 0;
+  padding-right: 0;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  transform: none;
+  filter: none;
+}
+
+/* タイトルを真ん中 */
+.fx-title{
+  text-align: center;
+  font-size: 28px;
+  font-weight: 900;
+  margin: 8px 0 18px;
+  color: #0b2b3a;
+  width: auto;
+  max-width: none;
+  margin: 8px 0 18px;  
+}
+
+
+/* ■（カード） blur なし */
+.fx-card {
+  width: 100%;
+  max-width: 920px;
+  padding: 18px 20px;
+  border-radius: 0;
+
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255,255,255,0.45);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.10);
+
+}
+
+.fx-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 36px 1fr 120px;
+  gap: 14px;
+  align-items: end;
+}
+
+@media (max-width: 720px) {
+  .fx-row { grid-template-columns: 1fr; gap: 12px; }
+  .fx-arrow { display: none; }
+  .fx-btn { width: 100%; }
+}
+
+.fx-field { display: grid; gap: 6px; }
+.fx-label { font-size: 12px; opacity: 0.75; }
+
+.fx-input,
+.fx-select {
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 0;
+  border: 1px solid rgba(0,0,0,0.14);
+  background: rgba(255,255,255,0.92);
+}
+
+.fx-arrow {
+  height: 44px;
+  display: grid;
+  place-items: center;
+  opacity: 0.75;
+  user-select: none;
+}
+
+/* 計算ボタン：ヘッダーと同じ色にしたい */
+.fx-btn {
+  height: 44px;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  color: #fff;
+  font-weight: 800;
+
+  /* ここを「ヘッダー色」に合わせる */
+  background: var(--header-bg, #0a6b86);
+}
+
+.fx-btn:hover {
+  filter: brightness(0.95);
+}
+
+.fx-error {
+  margin-top: 12px;
+  color: #b00020;
+}
+
+.fx-result {
+  margin-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.55);
+  padding-top: 14px;
+}
+
+.fx-result__meta {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.fx-result__main {
+  margin-top: 6px;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.fx-result__sub {
+  margin-top: 6px;
+  font-size: 13px;
+  opacity: 0.85;
+}

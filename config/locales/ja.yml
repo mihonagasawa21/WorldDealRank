@@ -1,0 +1,35 @@
+ja:
+  activerecord:
+    models:
+      post: 投稿
+      user: ユーザー
+
+    attributes:
+      post:
+        title: 題名
+        body: 本文
+        country: 国
+        country_id: 国
+
+      user:
+        name: 表示名
+        username: ユーザー名
+        email: メールアドレス
+        password: パスワード
+        password_confirmation: パスワード確認
+
+  errors:
+    format: "%{attribute}%{message}"
+    messages:
+      blank: "を入力してください"
+      confirmation: "が一致しません"
+      too_short: "は%{count}文字以上で入力してください"
+      taken: "はすでに使用されています"
+
+  time:
+    formats:
+      short: "%Y/%m/%d %H:%M"
+
+  date:
+    formats:
+      short: "%Y/%m/%d"

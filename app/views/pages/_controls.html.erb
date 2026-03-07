@@ -1,0 +1,30 @@
+<div style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 12px;">
+  <form method="get" action="<%= request.path %>">
+    <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+      <div>
+        <label>安全フィルタ</label>
+        <select name="safety">
+          <option value="safe_lv2" <%= @safety == "safe_lv2" ? "selected" : "" %>>危険情報なし または レベル1,2を含む国</option>
+          <option value="lv1" <%= @safety == "lv1" ? "selected" : "" %>>レベル1を含む国</option>
+          <option value="lv2" <%= @safety == "lv2" ? "selected" : "" %>>レベル2を含む国</option>
+          <option value="none" <%= @safety == "none" ? "selected" : "" %>>危険情報なしを含む国</option>
+        </select>
+      </div>
+
+      <div>
+        <label>
+          <input type="checkbox" name="show_areas" value="1" <%= @show_areas ? "checked" : "" %>>
+          地域行も表示（国の下に展開）
+        </label>
+      </div>
+
+      <div>
+        <button type="submit">反映</button>
+      </div>
+
+      <div style="margin-left:auto; color:#666; font-size:12px;">
+        為替表示は 1通貨 = 円
+      </div>
+    </div>
+  </form>
+</div>
