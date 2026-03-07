@@ -185,7 +185,7 @@ body{
 /* ===== 背景（ヘッダーとフッターの間） ===== */
 .site-bg{
   min-height: calc(100vh - var(--footer-h));
-  background: url("/assets/bg_water.webp") center / cover no-repeat fixed;
+  background: image-url("bg_water.webp") center / cover no-repeat fixed;
   padding: 10px 12px 10px;
 }
 
