@@ -25,7 +25,7 @@ module Admin
         :iso2,
         :iso3,
         :currency_code,
-        :name_en
+        :name_en,
         :photo_url
       )
     end
