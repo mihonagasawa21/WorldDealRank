@@ -1,50 +1,40 @@
-<!-- app/views/users/edit.html.erb -->
-<h1>プロフィール編集</h1>
-<p><%= link_to "マイページへ戻る", mypage_path %></p>
+<div class="posts-page">
+  <h1 class="posts-title">投稿を編集</h1>
 
-<%= form_with model: @user, url: user_path(@user), method: :patch do |f| %>
-  <% if @user.errors.any? %>
-    <div style="padding: 10px; border: 1px solid #f99; margin-bottom: 12px;">
-      <div>入力エラーがあります</div>
-      <ul>
-        <% @user.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      </ul>
+  <%= form_with model: @post, local: true, class: "post-form" do |f| %>
+    <% if @post.errors.any? %>
+      <div class="post-errors">
+        <div class="post-errors__title">入力エラーがあります</div>
+        <ul class="post-errors__list">
+          <% @post.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="post-field">
+      <%= f.label :title, "タイトル", class: "post-label" %>
+      <%= f.text_field :title, class: "post-input" %>
+    </div>
+
+    <div class="post-field">
+      <%= f.label :country_id, "国", class: "post-label" %>
+      <%= f.collection_select :country_id, Country.order(:name_ja), :id, :name_ja, { include_blank: "選択してください" }, class: "post-select" %>
+    </div>
+
+    <div class="post-field">
+      <%= f.label :body, "本文", class: "post-label" %>
+      <%= f.text_area :body, rows: 8, class: "post-textarea" %>
+    </div>
+
+    <div class="post-field">
+      <%= f.label :attachments, "添付", class: "post-label" %>
+      <%= f.file_field :attachments, multiple: true, class: "post-file" %>
+    </div>
+
+    <div class="post-actions">
+      <%= f.submit "更新する", class: "post-btn" %>
     </div>
   <% end %>
-
-
-  <div style="margin-bottom: 10px;">
-    <%= f.label :username, "ユーザーネーム" %><br>
-    <%= f.text_field :username, style: "width: 100%;", placeholder: "例: yuki_123" %>
-  </div>
-
-  <div style="margin-bottom: 10px;">
-    <%= f.label :email, "メールアドレス" %><br>
-    <%= f.email_field :email, style: "width: 100%;" %>
-  </div>
-
-  <div style="margin-bottom: 10px; color: #666;">
-    パスワード変更しない場合は空のままで大丈夫です
-  </div>
-
-  <div style="margin-bottom: 10px;">
-    <%= f.label :password, "新しいパスワード" %><br>
-    <%= f.password_field :password, style: "width: 100%;" %>
-  </div>
-
-  <div style="margin-bottom: 10px;">
-    <%= f.label :password_confirmation, "新しいパスワード確認" %><br>
-    <%= f.password_field :password_confirmation, style: "width: 100%;" %>
-  </div>
-
-  <div style="margin-bottom: 10px;">
-    <%= f.label :avatar, "プロフィール画像" %><br>
-    <%= f.file_field :avatar %>
-  </div>
-
-  <div>
-    <%= f.submit "更新する" %>
-  </div>
-<% end %>
+</div>
