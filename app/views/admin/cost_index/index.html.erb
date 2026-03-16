@@ -9,7 +9,10 @@
 <% end %>
 
 <p>
-  <%= button_to "コスト指数を更新する", "/admin/cost_index/refresh", method: :post, data: { turbo: false } %>
+  <%= button_to "本番データ更新（MOFA・人気・FX・PPP・再計算）",
+        refresh_admin_cost_index_path,
+        method: :post,
+        data: { turbo: false } %>
 </p>
 
 <hr>
@@ -40,6 +43,22 @@
   <tr>
     <th>最新 calculated_at</th>
     <td><%= @latest_calculated_at || "-" %></td>
+  </tr>
+  <tr>
+    <th>fx_rate_usdあり</th>
+    <td><%= @fx_count %></td>
+  </tr>
+  <tr>
+    <th>ppp_lcu_per_intlあり</th>
+    <td><%= @ppp_count %></td>
+  </tr>
+  <tr>
+    <th>plrあり</th>
+    <td><%= @plr_count %></td>
+  </tr>
+  <tr>
+    <th>tourism_coefあり</th>
+    <td><%= @tourism_count %></td>
   </tr>
 </table>
 

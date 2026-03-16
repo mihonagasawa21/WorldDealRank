@@ -31,6 +31,6 @@ resources :tags, only: [:show]
 
   get   "admin/cost_index"         => "admin/cost_index#index",   as: :admin_cost_index
   post  "admin/cost_index/refresh" => "admin/cost_index#refresh", as: :refresh_admin_cost_index
-
+ 
   root "pages#ranking"
 end
