@@ -29,5 +29,8 @@ resources :tags, only: [:show]
   get   "admin/countries/:id/edit" => "admin/countries#edit",   as: :edit_admin_country
   patch "admin/countries/:id"      => "admin/countries#update", as: :admin_country
 
+  get   "admin/cost_index"         => "admin/cost_index#index",   as: :admin_cost_index
+  post  "admin/cost_index/refresh" => "admin/cost_index#refresh", as: :refresh_admin_cost_index
+
   root "pages#ranking"
 end

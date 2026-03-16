@@ -1,0 +1,23 @@
+<h1>コスト指数 更新</h1>
+
+<% if notice.present? %>
+  <div class="flash flash-notice">
+    <%= notice %>
+  </div>
+<% end %>
+
+<% if alert.present? %>
+  <div class="flash flash-alert">
+    <%= alert %>
+  </div>
+<% end %>
+
+<p>下のボタンを押すと、コスト指数を再計算して保存します。</p>
+
+<div class="actions">
+  <%= button_to "コスト指数を更新する",
+                refresh_admin_cost_index_path,
+                method: :post,
+                class: "btn",
+                data: { confirm: "更新を実行しますか？" } %>
+</div>
