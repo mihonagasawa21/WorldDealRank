@@ -72,19 +72,14 @@
         </div>
 
         <% photo = safe_photo_url(c) %>
-
-        <div style="font-size:12px; color:red; word-break:break-all;">
-          photo_url=<%= c.photo_url.inspect %><br>
-          safe_photo_url=<%= photo.inspect %>
-        </div>
-
         <% if photo.present? %>
           <div class="top10-photo">
-            <img src="<%= photo %>" alt="<%= c.name_ja %>" class="top10-photo-img">
+            <img src="<%= photo %>" alt="<%= c.name_ja %>" class="top10-photo-img" loading="lazy" referrerpolicy="no-referrer">
           </div>
         <% else %>
           <div class="top10-photo top10-photo--empty"></div>
         <% end %>
+        
       </section>
     <% end %>
   </div>

@@ -36,4 +36,7 @@ module ApplicationHelper
 
     ERB::Util.html_escape(url)
   end
+
+    ERB::Util.html_escape(url)
+  end
 end

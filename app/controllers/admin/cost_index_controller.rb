@@ -71,6 +71,13 @@ class Admin::CostIndexController < ApplicationController
     handle_admin_error(e)
   end
 
+  def refresh_photos
+    updated = CostIndex::CountryPhotoRefreshService.call
+    redirect_to admin_cost_index_path, notice: "写真更新が完了しました（#{updated}件）"
+  rescue => e
+    redirect_to admin_cost_index_path, alert: "写真更新でエラー: #{e.message}"
+  end
+
   private
 
   def handle_admin_error(error)
