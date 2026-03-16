@@ -29,7 +29,13 @@
         </div>
 
         <% if c.photo_url.present? %>
-          <div class="top10-photo" style="background-image:url('<%= c.photo_url %>')"></div>
+          <div class="top10-photo">
+            <%= image_tag c.photo_url,
+                  alt: c.name_ja,
+                  class: "top10-photo-img",
+                  loading: "lazy",
+                  referrerpolicy: "no-referrer" %>
+          </div>
         <% else %>
           <div class="top10-photo top10-photo--empty"></div>
         <% end %>
