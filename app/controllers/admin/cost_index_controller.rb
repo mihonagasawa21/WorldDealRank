@@ -77,6 +77,28 @@ class Admin::CostIndexController < ApplicationController
   rescue => e
     redirect_to admin_cost_index_path, alert: "写真更新でエラー: #{e.message}"
   end
+  
+  def refresh_risk
+    fetcher = Mofa::RiskMapFetcher.new
+    updated = 0
+
+    Country.find_each do |country|
+      next if country.mofa_country_code.blank?
+
+      begin
+        fetcher.apply_to_country!(country)
+        updated += 1
+      rescue => e
+        Rails.logger.error "[ADMIN RISK] #{country.id} #{country.name_ja} #{e.class}: #{e.message}"
+      end
+    end
+
+    load_cost_index_debug_data
+    flash.now[:notice] = "危険情報を更新しました（#{updated}件）"
+    render :index
+  rescue => e
+    handle_admin_error(e)
+  end
 
   private
 
@@ -184,7 +206,8 @@ class Admin::CostIndexController < ApplicationController
     @fx_count = countries.where.not(fx_rate_usd: nil).count
     @ppp_count = countries.where.not(ppp_lcu_per_intl: nil).count
     @plr_count = countries.where.not(plr: nil).count
-
+    @safety_min_count = countries.where.not(safety_min_level: nil).count
+    @safety_max_count = countries.where.not(safety_max_level: nil).count
     @problem_countries = countries.select do |c|
       c.final_index.nil? || c.jp_resident_count.nil? || c.last_error.present?
     end
