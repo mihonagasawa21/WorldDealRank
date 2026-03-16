@@ -21,7 +21,6 @@ module Admin
 
     def country_params
       params.require(:country).permit(
-        :tourism_coef,
         :iso2,
         :iso3,
         :currency_code,

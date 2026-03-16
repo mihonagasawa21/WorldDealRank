@@ -40,7 +40,6 @@ class Admin::CostIndexController < ApplicationController
     @fx_count = countries.where.not(fx_rate_usd: nil).count
     @ppp_count = countries.where.not(ppp_lcu_per_intl: nil).count
     @plr_count = countries.where.not(plr: nil).count
-    @tourism_count = countries.where.not(tourism_coef: nil).count
 
     @problem_countries = countries.select do |c|
       c.final_index.nil? || c.jp_resident_count.nil? || c.last_error.present?

@@ -70,23 +70,14 @@ module CostIndex
         return
       end
 
-      jp_tour = tourism_coef(japan)
-      jp_tour = BigDecimal("1") if jp_tour <= 0
-
       Country.find_each do |country|
         ensure_plr!(country)
 
         plr = country.plr.to_d
         plr = BigDecimal("1") if plr <= 0
-
-        tour = tourism_coef(country)
-        tour = BigDecimal("1") if tour <= 0
-
+        
         ratio_plr = Support::MathOps.div(plr, jp_plr)
-        ratio_tour = Support::MathOps.div(tour, jp_tour)
-
-        base100 = Support::MathOps.mul(BigDecimal("100"), ratio_plr)
-        final = Support::MathOps.mul(base100, ratio_tour)
+        final = Support::MathOps.mul(BigDecimal("100"), ratio_plr)
 
         reason = nil
         reason = join_reason(reason, "FXなし(推計:PLR=1扱い含む可能性)") if country.fx_rate_usd.blank?
@@ -116,16 +107,6 @@ module CostIndex
 
       # 画面を成立させるための推計（厳密にしたいならここは nil のままにして除外設計にする）
       country.update(plr: BigDecimal("1")) if country.plr.blank?
-    end
-
-    def tourism_coef(country)
-      if country.respond_to?(:tourism_coef_or_default)
-        country.tourism_coef_or_default.to_d
-      elsif country.respond_to?(:tourism_coef) && country.tourism_coef.present?
-        country.tourism_coef.to_d
-      else
-        BigDecimal("1")
-      end
     end
 
     def join_reason(base, add)

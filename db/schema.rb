@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_04_060604) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_16_062937) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -68,7 +68,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_04_060604) do
     t.string "currency_code"
     t.integer "safety_level"
     t.datetime "safety_updated_at"
-    t.decimal "tourism_coef"
     t.decimal "fx_rate_usd"
     t.date "fx_date"
     t.decimal "ppp_lcu_per_intl"
