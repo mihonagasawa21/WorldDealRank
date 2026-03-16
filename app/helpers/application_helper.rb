@@ -34,6 +34,6 @@ module ApplicationHelper
       url = url.sub(/\Ahttp:\/\//, "https://")
     end
 
-    ERB::Util.html_escape(url)
+    url
   end
 end
