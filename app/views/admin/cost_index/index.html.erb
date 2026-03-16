@@ -1,23 +1,103 @@
-<h1>コスト指数 更新</h1>
+<h1>コスト指数 管理画面</h1>
 
-<% if notice.present? %>
-  <div class="flash flash-notice">
-    <%= notice %>
-  </div>
+<% if flash[:notice].present? %>
+  <p style="color: green; font-weight: bold;"><%= flash[:notice] %></p>
 <% end %>
 
-<% if alert.present? %>
-  <div class="flash flash-alert">
-    <%= alert %>
-  </div>
+<% if flash[:alert].present? %>
+  <p style="color: red; font-weight: bold;"><%= flash[:alert] %></p>
 <% end %>
 
-<p>下のボタンを押すと、コスト指数を再計算して保存します。</p>
+<p>
+  <%= button_to "コスト指数を更新する", "/admin/cost_index/refresh", method: :post, data: { turbo: false } %>
+</p>
 
-<div class="actions">
-  <%= button_to "コスト指数を更新する",
-                refresh_admin_cost_index_path,
-                method: :post,
-                class: "btn",
-                data: { confirm: "更新を実行しますか？" } %>
-</div>
+<hr>
+
+<h2>集計</h2>
+
+<table border="1" cellpadding="8" cellspacing="0">
+  <tr>
+    <th>総国数</th>
+    <td><%= @total_count %></td>
+  </tr>
+  <tr>
+    <th>final_indexあり</th>
+    <td><%= @final_index_count %></td>
+  </tr>
+  <tr>
+    <th>jp_resident_countあり</th>
+    <td><%= @resident_count_count %></td>
+  </tr>
+  <tr>
+    <th>calculated_atあり</th>
+    <td><%= @calculated_at_count %></td>
+  </tr>
+  <tr>
+    <th>last_errorあり</th>
+    <td><%= @last_error_count %></td>
+  </tr>
+  <tr>
+    <th>最新 calculated_at</th>
+    <td><%= @latest_calculated_at || "-" %></td>
+  </tr>
+</table>
+
+<hr>
+
+<h2>問題がありそうな国</h2>
+
+<table border="1" cellpadding="6" cellspacing="0">
+  <thead>
+    <tr>
+      <th>国名</th>
+      <th>final_index</th>
+      <th>jp_resident_count</th>
+      <th>calculated_at</th>
+      <th>last_error</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @problem_countries.each do |c| %>
+      <tr>
+        <td><%= c.name %></td>
+        <td><%= c.final_index.nil? ? "-" : c.final_index %></td>
+        <td><%= c.jp_resident_count.nil? ? "-" : c.jp_resident_count %></td>
+        <td><%= c.calculated_at || "-" %></td>
+        <td style="max-width: 500px; white-space: pre-wrap;"><%= c.last_error.presence || "-" %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>world表示の確認用</h2>
+
+<table border="1" cellpadding="6" cellspacing="0">
+  <thead>
+    <tr>
+      <th>国名</th>
+      <th>指数(final_index_ui)</th>
+      <th>安さ評価(cheap)</th>
+      <th>人気評価(popular)</th>
+      <th>総合点(recommend)</th>
+      <th>final_index</th>
+      <th>jp_resident_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @sample_world_rows.each do |c| %>
+      <% score = @score_map[c.id] || {} %>
+      <tr>
+        <td><%= c.name %></td>
+        <td><%= c.final_index_ui %></td>
+        <td><%= score[:cheap].nil? ? "-" : score[:cheap] %></td>
+        <td><%= score[:popular].nil? ? "測定不能" : score[:popular] %></td>
+        <td><%= score[:recommend].nil? ? "-" : score[:recommend] %></td>
+        <td><%= c.final_index.nil? ? "-" : c.final_index %></td>
+        <td><%= c.jp_resident_count.nil? ? "-" : c.jp_resident_count %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
