@@ -1,4 +1,4 @@
-\<h1 class="top10-title">
+<h1 class="top10-title">
   注目旅行先ランキング <span class="top10-title-sub">TOP10</span>
 </h1>
 
@@ -27,14 +27,19 @@
           </div>
         </div>
 
-       <% if c.photo_url.present? %>
-          <div style="color:red; font-size:12px;"><%= c.photo_url %></div>
+        <% if c.photo_url.present? %>
           <div class="top10-photo">
+            <% if wt.present? %>
+              <div class="top10-photo-note"><%= wt %></div>
+            <% end %>
             <img src="<%= c.photo_url %>" alt="<%= c.name_ja %>" class="top10-photo-img">
           </div>
         <% else %>
-          <div style="color:red; font-size:12px;">photo_urlなし</div>
-          <div class="top10-photo top10-photo--empty"></div>
+          <div class="top10-photo top10-photo--empty">
+            <% if wt.present? %>
+              <div class="top10-photo-note"><%= wt %></div>
+            <% end %>
+          </div>
         <% end %>
       </section>
     <% end %>
