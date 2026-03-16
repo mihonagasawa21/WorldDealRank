@@ -12,7 +12,7 @@ class Admin::CostIndexController < ApplicationController
     flash.now[:notice] = "更新処理を実行しました"
     render :index
   rescue => e
-    load_cost_index_debug_data
+    load_cost_index_debug_data rescue nil
     flash.now[:alert] = "更新中にエラーが発生しました: #{e.class} #{e.message}"
     render :index, status: :unprocessable_entity
   end
@@ -20,16 +20,14 @@ class Admin::CostIndexController < ApplicationController
   private
 
   def load_cost_index_debug_data
-    countries = Country.order(:name)
+    countries = Country.order(:name_ja)
 
     @countries = countries
-
     @total_count = countries.count
     @final_index_count = countries.where.not(final_index: nil).count
     @resident_count_count = countries.where.not(jp_resident_count: nil).count
     @calculated_at_count = countries.where.not(calculated_at: nil).count
     @last_error_count = countries.where.not(last_error: [nil, ""]).count
-
     @latest_calculated_at = countries.where.not(calculated_at: nil).maximum(:calculated_at)
 
     @problem_countries = countries.select do |c|
@@ -37,7 +35,6 @@ class Admin::CostIndexController < ApplicationController
     end
 
     @sample_world_rows = countries.limit(30)
-
     @score_map = CostIndex::RankingScorer.new(countries).score_map
   end
 end

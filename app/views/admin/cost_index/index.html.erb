@@ -60,7 +60,7 @@
   <tbody>
     <% @problem_countries.each do |c| %>
       <tr>
-        <td><%= c.name %></td>
+        <td><%= c.name_ja.presence || c.name_en.presence || c.iso3 || c.id %></td>
         <td><%= c.final_index.nil? ? "-" : c.final_index %></td>
         <td><%= c.jp_resident_count.nil? ? "-" : c.jp_resident_count %></td>
         <td><%= c.calculated_at || "-" %></td>
@@ -90,7 +90,7 @@
     <% @sample_world_rows.each do |c| %>
       <% score = @score_map[c.id] || {} %>
       <tr>
-        <td><%= c.name %></td>
+        <td><%= c.name_ja.presence || c.name_en.presence || c.iso3 || c.id %></td>
         <td><%= c.final_index_ui %></td>
         <td><%= score[:cheap].nil? ? "-" : score[:cheap] %></td>
         <td><%= score[:popular].nil? ? "測定不能" : score[:popular] %></td>
