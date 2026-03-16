@@ -73,7 +73,7 @@
     </tr>
   </thead>
   <tbody>
-    <% @problem_countries.each do |c| %>
+    <% Array(@problem_countries).each do |c| %>
       <tr>
         <td><%= c.name_ja.presence || c.name_en.presence || c.iso3 || c.id %></td>
         <td><%= c.final_index.nil? ? "-" : c.final_index %></td>
@@ -102,7 +102,7 @@
     </tr>
   </thead>
   <tbody>
-    <% @sample_world_rows.each do |c| %>
+    <% Array(@sample_world_rows).each do |c| %>
       <% score = @score_map[c.id] || {} %>
       <tr>
         <td><%= c.name_ja.presence || c.name_en.presence || c.iso3 || c.id %></td>

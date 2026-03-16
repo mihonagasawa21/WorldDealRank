@@ -1,25 +1,73 @@
 # frozen_string_literal: true
 
+require "bigdecimal"
+require "bigdecimal/util"
+
 class Admin::CostIndexController < ApplicationController
   def index
     load_cost_index_debug_data
   end
 
   def refresh
-    run_rake_task!("cost_index:refresh_all")
+    now = Time.current
+
+    countries = Country.all.to_a
+    raise "国データがありません" if countries.empty?
+
+    japan = find_japan
+    raise "日本が見つかりません" if japan.nil?
+
+    ensure_plr!(japan)
+    japan.reload
+
+    raise "日本のPLRがありません" if japan.plr.blank? || japan.plr.to_d <= 0
+
+    jp_plr = japan.plr.to_d
+
+    updated_count = 0
+    error_count = 0
+
+    Country.find_each do |country|
+      begin
+        ensure_plr!(country)
+        country.reload
+
+        plr = country.plr.to_d
+        plr = BigDecimal("1") if plr <= 0
+
+        final = BigDecimal("100") * (plr / jp_plr)
+
+        reason = nil
+        reason = join_reason(reason, "FXなし") if country.fx_rate_usd.blank?
+        reason = join_reason(reason, "PPPなし") if country.ppp_lcu_per_intl.blank?
+        reason = join_reason(reason, "PLR推計") if country.plr.blank? || country.plr.to_d <= 0
+
+        country.update_columns(
+          final_index: final,
+          deviation_pct: final - BigDecimal("100"),
+          calculated_at: now,
+          last_error: reason
+        )
+
+        updated_count += 1
+      rescue => e
+        error_count += 1
+        begin
+          country.update_columns(last_error: "再計算失敗: #{e.class} #{e.message}")
+        rescue StandardError
+        end
+      end
+    end
+
     load_cost_index_debug_data
-
-    flash.now[:notice] = "本番データ更新を実行しました"
+    flash.now[:notice] = "再計算完了: #{updated_count}件更新 / #{error_count}件エラー"
     render :index
-  rescue => e
-    Rails.logger.error "[ADMIN COST] refresh error #{e.class}: #{e.message}"
-    Rails.logger.error e.backtrace.first(20).join("\n")
 
+  rescue => e
     begin
       load_cost_index_debug_data
     rescue => load_error
       Rails.logger.error "[ADMIN COST] load error #{load_error.class}: #{load_error.message}"
-      Rails.logger.error load_error.backtrace.first(20).join("\n")
       @problem_countries = []
       @sample_world_rows = []
       @score_map = {}
@@ -30,14 +78,6 @@ class Admin::CostIndexController < ApplicationController
   end
 
   private
-
-  def run_rake_task!(task_name)
-    require "rake"
-    Rails.application.load_tasks if Rake::Task.tasks.empty?
-    task = Rake::Task[task_name]
-    task.reenable
-    task.invoke
-  end
 
   def load_cost_index_debug_data
     @problem_countries = []
@@ -62,6 +102,47 @@ class Admin::CostIndexController < ApplicationController
     end
 
     @sample_world_rows = countries.limit(30).to_a
-    @score_map = CostIndex::RankingScorer.new(countries).score_map || {}
+
+    begin
+      @score_map = CostIndex::RankingScorer.new(countries).score_map || {}
+    rescue => e
+      Rails.logger.error "[ADMIN COST] score_map error #{e.class}: #{e.message}"
+      @score_map = {}
+    end
+  end
+
+  def find_japan
+    Country.japan ||
+      Country.where("upper(iso3) = ?", "JPN").first ||
+      Country.where("upper(iso2) = ?", "JP").first ||
+      Country.where("upper(currency_code) = ?", "JPY").first ||
+      Country.where("name_ja LIKE ?", "%日本%").first ||
+      Country.where("lower(name_en) = ?", "japan").first
+  end
+
+  def ensure_plr!(country)
+    return if country.plr.present? && country.plr.to_d > 0
+
+    ppp = country.ppp_lcu_per_intl
+    fx = country.fx_rate_usd
+
+    if ppp.present? && fx.present? && fx.to_d != 0
+      country.update_columns(plr: ppp.to_d / fx.to_d)
+      return
+    end
+
+    country.update_columns(plr: BigDecimal("1"))
+  rescue => e
+    begin
+      country.update_columns(plr: BigDecimal("1"))
+    rescue StandardError
+    end
+    Rails.logger.error "[ADMIN COST] ensure_plr error #{country.id}: #{e.class} #{e.message}"
+  end
+
+  def join_reason(base, add)
+    b = base.to_s.strip
+    return add if b.empty?
+    "#{b} / #{add}"
   end
 end
