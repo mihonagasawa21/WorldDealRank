@@ -12,7 +12,19 @@ class Admin::CostIndexController < ApplicationController
     flash.now[:notice] = "本番データ更新を実行しました"
     render :index
   rescue => e
-    load_cost_index_debug_data rescue nil
+    Rails.logger.error "[ADMIN COST] refresh error #{e.class}: #{e.message}"
+    Rails.logger.error e.backtrace.first(20).join("\n")
+
+    begin
+      load_cost_index_debug_data
+    rescue => load_error
+      Rails.logger.error "[ADMIN COST] load error #{load_error.class}: #{load_error.message}"
+      Rails.logger.error load_error.backtrace.first(20).join("\n")
+      @problem_countries = []
+      @sample_world_rows = []
+      @score_map = {}
+    end
+
     flash.now[:alert] = "更新中にエラーが発生しました: #{e.class} #{e.message}"
     render :index, status: :unprocessable_entity
   end
@@ -28,6 +40,10 @@ class Admin::CostIndexController < ApplicationController
   end
 
   def load_cost_index_debug_data
+    @problem_countries = []
+    @sample_world_rows = []
+    @score_map = {}
+
     countries = Country.order(:name_ja)
 
     @total_count = countries.count
@@ -45,7 +61,7 @@ class Admin::CostIndexController < ApplicationController
       c.final_index.nil? || c.jp_resident_count.nil? || c.last_error.present?
     end
 
-    @sample_world_rows = countries.limit(30)
-    @score_map = CostIndex::RankingScorer.new(countries).score_map
+    @sample_world_rows = countries.limit(30).to_a
+    @score_map = CostIndex::RankingScorer.new(countries).score_map || {}
   end
 end
