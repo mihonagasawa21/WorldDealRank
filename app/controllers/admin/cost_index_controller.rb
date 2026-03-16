@@ -9,6 +9,112 @@ class Admin::CostIndexController < ApplicationController
   end
 
   def refresh
+    recalc_indexes_only!
+
+    load_cost_index_debug_data
+    flash.now[:notice] = "指数を再計算しました"
+    render :index
+  rescue => e
+    handle_admin_error(e)
+  end
+
+  def refresh_mofa
+    Mofa::CountryMasterFetcher.new.upsert_countries
+    Countries::IsoMapper.new.fill_all
+
+    load_cost_index_debug_data
+    flash.now[:notice] = "MOFA国データを更新しました"
+    render :index
+  rescue => e
+    handle_admin_error(e)
+  end
+
+  def refresh_fx
+    Fx::FrankfurterFetcher.new.refresh_all
+    WorldBank::FxFetcher.new.fill_missing_fx_all
+
+    load_cost_index_debug_data
+    flash.now[:notice] = "FXデータを更新しました"
+    render :index
+  rescue => e
+    handle_admin_error(e)
+  end
+
+  def refresh_ppp
+    WorldBank::PppFetcher.new.refresh_all
+    WorldBank::PlrFetcher.new.refresh_all
+
+    load_cost_index_debug_data
+    flash.now[:notice] = "PPP・PLRデータを更新しました"
+    render :index
+  rescue => e
+    handle_admin_error(e)
+  end
+
+  def refresh_popularity
+    run_popularity_refresh!
+
+    load_cost_index_debug_data
+    flash.now[:notice] = "人気データを更新しました"
+    render :index
+  rescue => e
+    handle_admin_error(e)
+  end
+
+  def recalc
+    recalc_indexes_only!
+
+    load_cost_index_debug_data
+    flash.now[:notice] = "指数を再計算しました"
+    render :index
+  rescue => e
+    handle_admin_error(e)
+  end
+
+  private
+
+  def handle_admin_error(error)
+    Rails.logger.error "[ADMIN COST] #{error.class}: #{error.message}"
+    Rails.logger.error error.backtrace.first(20).join("\n") if error.backtrace.present?
+
+    begin
+      load_cost_index_debug_data
+    rescue => load_error
+      Rails.logger.error "[ADMIN COST LOAD] #{load_error.class}: #{load_error.message}"
+      @problem_countries = []
+      @sample_world_rows = []
+      @score_map = {}
+    end
+
+    flash.now[:alert] = "エラー: #{error.class} #{error.message}"
+    render :index, status: :unprocessable_entity
+  end
+
+  def run_popularity_refresh!
+    return true unless Object.const_defined?(:Popularity)
+
+    if Popularity.const_defined?(:MofaResidentImporter) && Popularity::MofaResidentImporter.respond_to?(:refresh_all)
+      Popularity::MofaResidentImporter.refresh_all
+      return true
+    end
+
+    if Popularity.const_defined?(:MofaResidentImporter)
+      importer = Popularity::MofaResidentImporter.new
+      if importer.respond_to?(:refresh!)
+        importer.refresh!
+        return true
+      end
+    end
+
+    if Popularity.const_defined?(:MofaResidentFetcher) && Popularity::MofaResidentFetcher.respond_to?(:refresh_all)
+      Popularity::MofaResidentFetcher.refresh_all
+      return true
+    end
+
+    true
+  end
+
+  def recalc_indexes_only!
     now = Time.current
 
     countries = Country.all.to_a
@@ -24,9 +130,6 @@ class Admin::CostIndexController < ApplicationController
 
     jp_plr = japan.plr.to_d
 
-    updated_count = 0
-    error_count = 0
-
     Country.find_each do |country|
       begin
         ensure_plr!(country)
@@ -35,12 +138,12 @@ class Admin::CostIndexController < ApplicationController
         plr = country.plr.to_d
         plr = BigDecimal("1") if plr <= 0
 
-        final = BigDecimal("100") * (plr / jp_plr)
+        ratio_plr = plr / jp_plr
+        final = BigDecimal("100") * ratio_plr
 
         reason = nil
         reason = join_reason(reason, "FXなし") if country.fx_rate_usd.blank?
         reason = join_reason(reason, "PPPなし") if country.ppp_lcu_per_intl.blank?
-        reason = join_reason(reason, "PLR推計") if country.plr.blank? || country.plr.to_d <= 0
 
         country.update_columns(
           final_index: final,
@@ -48,36 +151,14 @@ class Admin::CostIndexController < ApplicationController
           calculated_at: now,
           last_error: reason
         )
-
-        updated_count += 1
       rescue => e
-        error_count += 1
         begin
           country.update_columns(last_error: "再計算失敗: #{e.class} #{e.message}")
         rescue StandardError
         end
       end
     end
-
-    load_cost_index_debug_data
-    flash.now[:notice] = "再計算完了: #{updated_count}件更新 / #{error_count}件エラー"
-    render :index
-
-  rescue => e
-    begin
-      load_cost_index_debug_data
-    rescue => load_error
-      Rails.logger.error "[ADMIN COST] load error #{load_error.class}: #{load_error.message}"
-      @problem_countries = []
-      @sample_world_rows = []
-      @score_map = {}
-    end
-
-    flash.now[:alert] = "更新中にエラーが発生しました: #{e.class} #{e.message}"
-    render :index, status: :unprocessable_entity
   end
-
-  private
 
   def load_cost_index_debug_data
     @problem_countries = []

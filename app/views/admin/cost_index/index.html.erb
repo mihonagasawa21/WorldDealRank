@@ -8,11 +8,12 @@
   <p style="color: red; font-weight: bold;"><%= flash[:alert] %></p>
 <% end %>
 
-<p>
-  <%= button_to "本番データ更新（MOFA・人気・FX・PPP・再計算）",
-        refresh_admin_cost_index_path,
-        method: :post,
-        data: { turbo: false } %>
+<p style="display: flex; gap: 10px; flex-wrap: wrap;">
+  <%= button_to "MOFA更新", refresh_mofa_admin_cost_index_path, method: :post, data: { turbo: false } %>
+  <%= button_to "FX更新", refresh_fx_admin_cost_index_path, method: :post, data: { turbo: false } %>
+  <%= button_to "PPP更新", refresh_ppp_admin_cost_index_path, method: :post, data: { turbo: false } %>
+  <%= button_to "人気更新", refresh_popularity_admin_cost_index_path, method: :post, data: { turbo: false } %>
+  <%= button_to "再計算", recalc_admin_cost_index_path, method: :post, data: { turbo: false } %>
 </p>
 
 <hr>
