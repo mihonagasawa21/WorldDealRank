@@ -27,19 +27,14 @@
           </div>
         </div>
 
-        <% if c.photo_url.present? %>
+       <% if c.photo_url.present? %>
+          <div style="color:red; font-size:12px;"><%= c.photo_url %></div>
           <div class="top10-photo">
-            <% if wt.present? %>
-              <div class="top10-photo-note"><%= wt %></div>
-            <% end %>
             <img src="<%= c.photo_url %>" alt="<%= c.name_ja %>" class="top10-photo-img">
           </div>
         <% else %>
-          <div class="top10-photo top10-photo--empty">
-            <% if wt.present? %>
-              <div class="top10-photo-note"><%= wt %></div>
-            <% end %>
-          </div>
+          <div style="color:red; font-size:12px;">photo_urlなし</div>
+          <div class="top10-photo top10-photo--empty"></div>
         <% end %>
       </section>
     <% end %>
