@@ -10,10 +10,8 @@ class PagesController < ApplicationController
 
   def ranking
     @top_n = 10
-
-    # rankingページは「WORLDのデフォルト状態」と同じにする
     @sort = "rank"
-    @safety = "none"
+    @safety = "lv1"
     @q = ""
 
     base_rel = Country.not_japan.where.not(iso3: [nil, ""])
@@ -50,7 +48,7 @@ class PagesController < ApplicationController
 
   def world
     @sort   = params[:sort].presence   || "rank"
-    @safety = params[:safety].presence || "none"
+    @safety = params[:safety].presence || "lv1"
     @q      = params[:q].to_s.strip
 
     base_rel = Country.not_japan.where.not(iso3: [nil, ""])
@@ -152,19 +150,13 @@ class PagesController < ApplicationController
       min = c.safety_min_level
       max = c.safety_max_level
 
-      no_safety_data = min.nil? && (max.nil? || max.to_i <= 0)
+      next false if min.nil? && max.nil?
 
       case safety.to_s
       when "none"
-        no_safety_data
+        min.to_i == 0
       when "lv1"
-        next false if no_safety_data
-
-        if min.nil?
-          max.to_i <= 1
-        else
-          min.to_i <= 1
-        end
+        min.to_i <= 1
       else
         true
       end

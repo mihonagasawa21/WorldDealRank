@@ -60,11 +60,18 @@ module Mofa
       code = normalize_code(mofa_code)
 
       url = "#{BASE}/#{code}A.xml"
+      Rails.logger.warn "[MOFA FETCH START] code=#{code} url=#{url}"
+
       res = @http.get(url)
+
+      Rails.logger.warn "[MOFA FETCH END] code=#{code} status=#{res.status}"
+
       raise "MOFA fetch failed status=#{res.status} url=#{url}" unless res.status == 200
 
       body = res.body.to_s
       head = body.lstrip.downcase
+
+      raise "MOFA returned blank body url=#{url}" if body.strip.empty?
       raise "MOFA returned HTML (not XML) url=#{url}" if head.start_with?("<!doctype", "<html")
 
       body
