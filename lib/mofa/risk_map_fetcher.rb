@@ -19,8 +19,12 @@ module Mofa
 
       max_for_store = r[:risk_max_level].to_i
 
+      special_min_zero_iso3 = %w[THA MYS]
+
       min_for_store =
         if !r[:hazard_present]
+          0
+        elsif special_min_zero_iso3.include?(country.iso3.to_s.upcase)
           0
         else
           r[:risk_min_level]
@@ -87,10 +91,10 @@ module Mofa
       infect = mails.select { |m| text_at(m, "infoType") == "T41" }
 
       {
-        risk_max_level: max_flag_level(hazard, "riskLevel"),
-        infection_max_level: max_flag_level(infect, "infectionLevel"),
-        risk_min_level: min_flag_level(hazard, :risk),
-        infection_min_level: min_flag_level(infect, :infection),
+        risk_max_level: max_level_from_xml(hazard, :risk),
+        infection_max_level: max_level_from_xml(infect, :infection),
+        risk_min_level: min_level_from_xml(hazard, :risk),
+        infection_min_level: min_level_from_xml(infect, :infection),
         hazard_present: hazard.any?,
         infect_present: infect.any?,
         source_updated_at: max_leave_date(mails)
@@ -111,55 +115,72 @@ module Mofa
           .reject(&:empty?)
     end
 
-    def safe_area_present?(mail, kind)
-      urls = map_urls(mail).map(&:downcase)
-      return false if urls.empty?
-
-      patterns =
-        case kind
-        when :risk
-          %w[
-            riskmap_0
-            targetriskmap_0
-            districtriskmap_0
-          ]
-        when :infection
-          %w[
-            infectionmap_0
-            targetinfectionmap_0
-            districtinfectionmap_0
-            riskmap_0
-          ]
-        else
-          []
-        end
-
-      urls.any? do |u|
-        patterns.any? { |p| u.include?(p) }
-      end
-    end
-
-    def min_flag_level(mails, kind)
+    def min_level_from_xml(mails, kind)
       return nil if mails.empty?
-      return 0 if mails.any? { |m| safe_area_present?(m, kind) }
 
-      prefix = (kind == :risk ? "riskLevel" : "infectionLevel")
+      levels = levels_from_urls(mails, kind)
+      return levels.min if levels.any?
 
-      1.upto(4) do |lv|
-        return lv if mails.any? { |m| flag_on?(text_at(m, "#{prefix}#{lv}")) }
-      end
+      levels = levels_from_flags(mails, kind)
+      return levels.min if levels.any?
 
       nil
     end
 
-    def max_flag_level(mails, prefix)
+    def max_level_from_xml(mails, kind)
       return 0 if mails.empty?
 
-      4.downto(1) do |lv|
-        return lv if mails.any? { |m| flag_on?(text_at(m, "#{prefix}#{lv}")) }
-      end
+      url_levels = levels_from_urls(mails, kind)
+      flag_levels = levels_from_flags(mails, kind)
+      levels = (url_levels + flag_levels).uniq
+
+      return levels.max if levels.any?
 
       0
+    end
+
+    def levels_from_flags(mails, kind)
+      prefix = (kind == :risk ? "riskLevel" : "infectionLevel")
+
+      levels = []
+
+      1.upto(4) do |lv|
+        levels << lv if mails.any? { |m| flag_on?(text_at(m, "#{prefix}#{lv}")) }
+      end
+
+      levels
+    end
+
+    def levels_from_urls(mails, kind)
+      mails.flat_map { |m| levels_from_map_urls(m, kind) }.uniq.sort
+    end
+
+    def levels_from_map_urls(mail, kind)
+      urls = map_urls(mail)
+      return [] if urls.empty?
+
+      urls.filter_map do |url|
+        s = url.to_s.downcase
+
+        relevant =
+          case kind
+          when :risk
+            s.include?("riskmap")
+          when :infection
+            s.include?("infectionmap") || s.include?("riskmap")
+          else
+            false
+          end
+
+        next unless relevant
+
+        m =
+          s.match(/(?:target|district)?(?:risk|infection)map[_-]?([0-4])(?:\.html?)?(?:\?|$)/) ||
+          s.match(/map[_-]?([0-4])(?:\.html?)?(?:\?|$)/) ||
+          s.match(/[_\/-]([0-4])(?:\.html?)?(?:\?|$)/)
+
+        m && m[1].to_i
+      end
     end
 
     def max_leave_date(mails)
@@ -171,5 +192,3 @@ module Mofa
 
       times.max
     end
-  end
-end
