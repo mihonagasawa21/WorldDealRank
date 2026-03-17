@@ -93,71 +93,10 @@ class Admin::CostIndexController < ApplicationController
   end
   
   def refresh_risk
-    Rails.logger.warn "=== REFRESH_RISK START ==="
-
-    fetcher = Mofa::RiskMapFetcher.new
-
-    ok_count = 0
-    partial_count = 0
-    no_risk_count = 0
-    error_count = 0
-    batch_size = 10
-
-    base_scope = Country.not_japan
-                        .where.not(mofa_country_code: [nil, ""])
-
-    scope = base_scope.where(safety_fetched_at: nil).order(:id).limit(batch_size)
-    scope = base_scope.order(:id).limit(batch_size) if scope.empty?
-
-    scope.each do |country|
-      begin
-        Rails.logger.warn "[ADMIN RISK START] #{country.id} #{country.name_ja} iso3=#{country.iso3} code=#{country.mofa_country_code}"
-
-        Timeout.timeout(6) do
-          fetcher.apply_to_country!(country)
-        end
-
-        country.reload
-
-        max = country.safety_max_level.to_i
-        min = country.safety_min_level
-
-        if min.present?
-          if max > min.to_i
-            partial_count += 1
-          elsif max <= 0
-            no_risk_count += 1
-          else
-            ok_count += 1
-          end
-        else
-          error_count += 1
-        end
-
-        country.update_columns(last_error: nil) rescue nil
-
-        Rails.logger.warn "[ADMIN RISK OK] #{country.id} #{country.name_ja} iso3=#{country.iso3} code=#{country.mofa_country_code} min=#{min.inspect} max=#{max}"
-      rescue Timeout::Error
-        error_count += 1
-        country.update_columns(last_error: "危険情報更新失敗: Timeout") rescue nil
-        Rails.logger.error "[ADMIN RISK TIMEOUT] #{country.id} #{country.name_ja} iso3=#{country.iso3} code=#{country.mofa_country_code}"
-      rescue => e
-        error_count += 1
-        country.update_columns(last_error: "危険情報更新失敗: #{e.class} #{e.message}") rescue nil
-        Rails.logger.error "[ADMIN RISK ERROR] #{country.id} #{country.name_ja} iso3=#{country.iso3} code=#{country.mofa_country_code} #{e.class}: #{e.message}"
-      end
-    end
-
-    remaining = base_scope.where(safety_fetched_at: nil).count
-
-    Rails.logger.warn "=== REFRESH_RISK END ok=#{ok_count} partial=#{partial_count} none=#{no_risk_count} error=#{error_count} remaining=#{remaining} ==="
-
-    @popularity_result = nil
+    Rails.logger.warn "=== REFRESH_RISK REACHED ==="
+    flash.now[:notice] = "refresh_risk には入っています"
     load_cost_index_debug_data
-    flash.now[:notice] = "危険情報更新完了 ok=#{ok_count} 一部地域高リスク=#{partial_count} 危険情報なし=#{no_risk_count} エラー=#{error_count} 未取得残り=#{remaining}"
     render :index
-  rescue => e
-    handle_admin_error(e)
   end
   
 
