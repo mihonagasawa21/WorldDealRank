@@ -5,12 +5,14 @@ require "bigdecimal/util"
 
 class Admin::CostIndexController < ApplicationController
   def index
+    @popularity_result = nil
     load_cost_index_debug_data
   end
 
   def refresh
     recalc_indexes_only!
 
+    @popularity_result = nil
     load_cost_index_debug_data
     flash.now[:notice] = "指数を再計算しました"
     render :index
@@ -22,6 +24,7 @@ class Admin::CostIndexController < ApplicationController
     Mofa::CountryMasterFetcher.new.upsert_countries
     Countries::IsoMapper.new.fill_all
 
+    @popularity_result = nil
     load_cost_index_debug_data
     flash.now[:notice] = "MOFA国データを更新しました"
     render :index
@@ -33,6 +36,7 @@ class Admin::CostIndexController < ApplicationController
     Fx::FrankfurterFetcher.new.refresh_all
     WorldBank::FxFetcher.new.fill_missing_fx_all
 
+    @popularity_result = nil
     load_cost_index_debug_data
     flash.now[:notice] = "FXデータを更新しました"
     render :index
@@ -44,8 +48,26 @@ class Admin::CostIndexController < ApplicationController
     WorldBank::PppFetcher.new.refresh_all
     WorldBank::PlrFetcher.new.refresh_all
 
+    @popularity_result = nil
     load_cost_index_debug_data
     flash.now[:notice] = "PPP・PLRデータを更新しました"
+    render :index
+  rescue => e
+    handle_admin_error(e)
+  end
+
+  def refresh_popularity
+    @popularity_result = run_popularity_refresh!
+
+    load_cost_index_debug_data
+
+    if @popularity_result.is_a?(Hash)
+      unmatched_count = Array(@popularity_result[:unmatched_names]).size
+      flash.now[:notice] = "人気データを更新しました matched=#{@popularity_result[:matched]} updated=#{@popularity_result[:updated]} unmatched=#{unmatched_count}"
+    else
+      flash.now[:notice] = "人気データを更新しました"
+    end
+
     render :index
   rescue => e
     handle_admin_error(e)
@@ -54,6 +76,7 @@ class Admin::CostIndexController < ApplicationController
   def recalc
     recalc_indexes_only!
 
+    @popularity_result = nil
     load_cost_index_debug_data
     flash.now[:notice] = "指数を再計算しました"
     render :index
@@ -67,7 +90,7 @@ class Admin::CostIndexController < ApplicationController
   rescue => e
     redirect_to admin_cost_index_path, alert: "写真更新でエラー: #{e.message}"
   end
-  
+
   def refresh_risk
     fetcher = Mofa::RiskMapFetcher.new
     updated = 0
@@ -83,34 +106,9 @@ class Admin::CostIndexController < ApplicationController
       end
     end
 
+    @popularity_result = nil
     load_cost_index_debug_data
     flash.now[:notice] = "危険情報を更新しました（#{updated}件）"
-    render :index
-  rescue => e
-    handle_admin_error(e)
-  end
-  
-  def refresh_popularity
-    result = run_popularity_refresh!
-
-    load_cost_index_debug_data
-
-    if result.is_a?(Hash)
-      unmatched_count = Array(result[:unmatched_names]).size
-      unmatched_preview = Array(result[:unmatched_names]).first(20).join(", ")
-
-      msg = +"人気データを更新しました"
-      msg << " total=#{result[:total_rows]}" if result[:total_rows]
-      msg << " matched=#{result[:matched]}" if result[:matched]
-      msg << " updated=#{result[:updated]}" if result[:updated]
-      msg << " unmatched=#{unmatched_count}"
-      msg << " 未一致: #{unmatched_preview}" if unmatched_preview.present?
-
-      flash.now[:notice] = msg
-    else
-      flash.now[:notice] = "人気データを更新しました"
-    end
-
     render :index
   rescue => e
     handle_admin_error(e)
@@ -119,6 +117,8 @@ class Admin::CostIndexController < ApplicationController
   private
 
   def handle_admin_error(error)
+    @popularity_result ||= nil
+
     Rails.logger.error "[ADMIN COST] #{error.class}: #{error.message}"
     Rails.logger.error error.backtrace.first(20).join("\n") if error.backtrace.present?
 
@@ -155,7 +155,7 @@ class Admin::CostIndexController < ApplicationController
 
     true
   end
-  
+
   def recalc_indexes_only!
     now = Time.current
 
@@ -221,6 +221,7 @@ class Admin::CostIndexController < ApplicationController
     @plr_count = countries.where.not(plr: nil).count
     @safety_min_count = countries.where.not(safety_min_level: nil).count
     @safety_max_count = countries.where.not(safety_max_level: nil).count
+
     @problem_countries = countries.select do |c|
       c.final_index.nil? || c.jp_resident_count.nil? || c.last_error.present?
     end

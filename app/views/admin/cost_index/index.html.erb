@@ -8,13 +8,52 @@
   <p style="color: red; font-weight: bold;"><%= flash[:alert] %></p>
 <% end %>
 
+<% if @popularity_result.is_a?(Hash) %>
+  <hr>
+
+  <h2>人気更新結果</h2>
+
+  <table border="1" cellpadding="8" cellspacing="0">
+    <tr>
+      <th>source_url</th>
+      <td style="max-width: 700px; word-break: break-all;">
+        <%= @popularity_result[:source_url].presence || "-" %>
+      </td>
+    </tr>
+    <tr>
+      <th>total_rows</th>
+      <td><%= @popularity_result[:total_rows] || 0 %></td>
+    </tr>
+    <tr>
+      <th>matched</th>
+      <td><%= @popularity_result[:matched] || 0 %></td>
+    </tr>
+    <tr>
+      <th>updated</th>
+      <td><%= @popularity_result[:updated] || 0 %></td>
+    </tr>
+    <tr>
+      <th>unmatched件数</th>
+      <td><%= Array(@popularity_result[:unmatched_names]).size %></td>
+    </tr>
+    <tr>
+      <th>unmatched一覧</th>
+      <td style="max-width: 700px; white-space: pre-wrap;">
+        <% names = Array(@popularity_result[:unmatched_names]) %>
+        <%= names.any? ? names.join("、") : "-" %>
+      </td>
+    </tr>
+  </table>
+<% end %>
+
 <p style="display: flex; gap: 10px; flex-wrap: wrap;">
   <%= button_to "MOFA更新", refresh_mofa_admin_cost_index_path, method: :post, data: { turbo: false } %>
   <%= button_to "FX更新", refresh_fx_admin_cost_index_path, method: :post, data: { turbo: false } %>
   <%= button_to "PPP更新", refresh_ppp_admin_cost_index_path, method: :post, data: { turbo: false } %>
+  <%= button_to "人気更新", refresh_popularity_admin_cost_index_path, method: :post, data: { turbo: false } %>
   <%= button_to "写真更新", refresh_photos_admin_cost_index_path, method: :post %>
   <%= button_to "危険情報更新", refresh_risk_admin_cost_index_path, method: :post %>
-  <%= button_to "危険情報更新", refresh_risk_admin_cost_index_path, method: :post %>  <%= button_to "再計算", recalc_admin_cost_index_path, method: :post, data: { turbo: false } %>
+  <%= button_to "再計算", recalc_admin_cost_index_path, method: :post, data: { turbo: false } %>
 </p>
 
 <hr>
