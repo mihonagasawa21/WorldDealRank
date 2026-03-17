@@ -92,6 +92,8 @@ class Admin::CostIndexController < ApplicationController
   end
 
   def refresh_risk
+    Rails.logger.warn "=== REFRESH_RISK START ==="
+
     fetcher = Mofa::RiskMapFetcher.new
     updated = 0
     nil_count = 0
@@ -114,9 +116,11 @@ class Admin::CostIndexController < ApplicationController
       end
     end
 
+    Rails.logger.warn "=== REFRESH_RISK END updated=#{updated} nil_count=#{nil_count} ==="
+
     @popularity_result = nil
     load_cost_index_debug_data
-    flash.now[:notice] = "危険情報を更新しました（minあり=#{updated}件 / minなし=#{nil_count}件）"
+    flash.now[:notice] = "★★危険情報更新テスト★★ minあり=#{updated} / minなし=#{nil_count}"
     render :index
   rescue => e
     handle_admin_error(e)
