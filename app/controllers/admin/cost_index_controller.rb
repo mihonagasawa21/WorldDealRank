@@ -51,16 +51,6 @@ class Admin::CostIndexController < ApplicationController
     handle_admin_error(e)
   end
 
-  def refresh_popularity
-    run_popularity_refresh!
-
-    load_cost_index_debug_data
-    flash.now[:notice] = "人気データを更新しました"
-    render :index
-  rescue => e
-    handle_admin_error(e)
-  end
-
   def recalc
     recalc_indexes_only!
 
