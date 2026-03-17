@@ -33,7 +33,8 @@ module Mofa
         safety_min_level: min_for_store,
         safety_level: max,
         safety_source_updated_at: r[:source_updated_at],
-        safety_fetched_at: fetched_at
+        safety_fetched_at: fetched_at,
+        last_error: nil
       )
     end
 
@@ -41,8 +42,8 @@ module Mofa
 
     def default_http
       Faraday.new do |f|
-        f.options.timeout = 15
-        f.options.open_timeout = 10
+        f.options.timeout = 5
+        f.options.open_timeout = 3
         f.headers["User-Agent"] = "world-otokudo-ranking/1.0"
         f.headers["Accept"] = "application/xml,text/xml;q=0.9,*/*;q=0.8"
       end

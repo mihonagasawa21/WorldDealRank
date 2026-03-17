@@ -92,53 +92,70 @@ class Admin::CostIndexController < ApplicationController
   end
 
   def refresh_risk
-    Rails.logger.warn "=== REFRESH_RISK START ==="
+  Rails.logger.warn "=== REFRESH_RISK START ==="
 
-    fetcher = Mofa::RiskMapFetcher.new
-    min_present = 0
-    partial_present = 0
-    no_risk_count = 0
-    error_count = 0
+  fetcher = Mofa::RiskMapFetcher.new
 
-    target_iso3s = %w[THA PAK NGA MYS CHN IND ZAF]
+  ok_count = 0
+  partial_count = 0
+  no_risk_count = 0
+  error_count = 0
 
-    Country.where(iso3: target_iso3s).find_each do |country|
-      next if country.mofa_country_code.blank?
-      next if country.iso3.to_s.upcase == "JPN"
-      next if country.name_ja.to_s.include?("日本")
+  # 今の構成では1回で全件は重いので、まずは上限を切る
+  # 必要なら routes / button 側で limit を渡す
+  limit = params[:limit].to_i
+  limit = 20 if limit <= 0
+
+  scope = Country.not_japan
+                 .where.not(mofa_country_code: [nil, ""])
+                 .order(:id)
+                 .limit(limit)
+
+  scope.each do |country|
+    begin
+      fetcher.apply_to_country!(country)
+      country.reload
+
+      max = country.safety_max_level.to_i
+      min = country.safety_min_level
+
+      if min.present?
+        ok_count += 1
+      elsif max > 0
+        partial_count += 1
+      else
+        no_risk_count += 1
+      end
 
       begin
-        fetcher.apply_to_country!(country)
-        country.reload
-
-        max = country.safety_max_level.to_i
-        min = country.safety_min_level
-
-        Rails.logger.warn "[ADMIN RISK OK] #{country.id} #{country.name_ja} iso3=#{country.iso3} code=#{country.mofa_country_code} min=#{min.inspect} max=#{max}"
-
-        if min.present?
-          min_present += 1
-        elsif max > 0
-          partial_present += 1
-          Rails.logger.warn "[ADMIN RISK PARTIAL] #{country.id} #{country.name_ja} code=#{country.mofa_country_code} max=#{max}"
-        else
-          no_risk_count += 1
-        end
-      rescue => e
-        error_count += 1
-        Rails.logger.error "[ADMIN RISK] #{country.id} #{country.name_ja} #{e.class}: #{e.message}"
+        country.update_columns(last_error: nil)
+      rescue StandardError
       end
+
+      Rails.logger.warn "[ADMIN RISK OK] #{country.id} #{country.name_ja} iso3=#{country.iso3} code=#{country.mofa_country_code} min=#{min.inspect} max=#{max}"
+    rescue => e
+      error_count += 1
+
+      begin
+        country.update_columns(last_error: "危険情報更新失敗: #{e.class} #{e.message}")
+      rescue StandardError
+      end
+
+      Rails.logger.error "[ADMIN RISK ERROR] #{country.id} #{country.name_ja} iso3=#{country.iso3} code=#{country.mofa_country_code} #{e.class}: #{e.message}"
     end
-
-    Rails.logger.warn "=== REFRESH_RISK END min_present=#{min_present} partial_present=#{partial_present} no_risk_count=#{no_risk_count} error_count=#{error_count} ==="
-
-    @popularity_result = nil
-    load_cost_index_debug_data
-    flash.now[:notice] = "危険情報更新完了 minあり=#{min_present} 部分危険=#{partial_present} 危険情報なし=#{no_risk_count} エラー=#{error_count}"
-    render :index
-  rescue => e
-    handle_admin_error(e)
   end
+
+  Rails.logger.warn "=== REFRESH_RISK END ok=#{ok_count} partial=#{partial_count} none=#{no_risk_count} error=#{error_count} limit=#{limit} ==="
+
+  @popularity_result = nil
+  load_cost_index_debug_data
+  flash.now[:notice] = "危険情報更新完了 ok=#{ok_count} 部分危険=#{partial_count} 危険情報なし=#{no_risk_count} エラー=#{error_count} 件数=#{limit}"
+  render :index
+rescue => e
+  handle_admin_error(e)
+end
+
+    
 
   private
 

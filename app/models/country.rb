@@ -15,17 +15,16 @@ class Country < ApplicationRecord
   def self.ranking_candidates(safety:, show_areas:)
     rel = not_japan.where.not(final_index: nil)
 
-    # show_areas=false のときは「国だけ」= iso3 を持つものだけ
     unless show_areas
       rel = rel.where.not(iso3: [nil, ""])
     end
-
-    rel
 
     if safety.present?
       limit = safety.to_i
       rel = rel.where("safety_max_level <= ? OR safety_max_level IS NULL", limit)
     end
+
+    rel
   end
 
   def iso_label
