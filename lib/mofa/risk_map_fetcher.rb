@@ -86,6 +86,20 @@ module Mofa
       hazard = mails.select { |m| text_at(m, "infoType") == "T40" }
       infect = mails.select { |m| text_at(m, "infoType") == "T41" }
 
+      Rails.logger.warn "[RISK PARSE] hazard_count=#{hazard.size} infect_count=#{infect.size}"
+
+      hazard.each_with_index do |m, i|
+        urls = map_urls(m)
+        Rails.logger.warn(
+          "[RISK PARSE HAZARD #{i}] " \
+          "risk1=#{text_at(m, 'riskLevel1').inspect} " \
+          "risk2=#{text_at(m, 'riskLevel2').inspect} " \
+          "risk3=#{text_at(m, 'riskLevel3').inspect} " \
+          "risk4=#{text_at(m, 'riskLevel4').inspect} " \
+          "urls=#{urls.inspect}"
+        )
+      end
+
       {
         risk_max_level: max_flag_level(hazard, "riskLevel"),
         infection_max_level: max_flag_level(infect, "infectionLevel"),
@@ -115,28 +129,10 @@ module Mofa
       urls = map_urls(mail).map(&:downcase)
       return false if urls.empty?
 
-      patterns =
-        case kind
-        when :risk
-          %w[
-            riskmap_0
-            targetriskmap_0
-            districtriskmap_0
-          ]
-        when :infection
-          %w[
-            infectionmap_0
-            targetinfectionmap_0
-            districtinfectionmap_0
-            riskmap_0
-          ]
-        else
-          []
-        end
+      return urls.any? { |u| u.include?("riskmap_0") } if kind == :risk
+      return urls.any? { |u| u.include?("infectionmap_0") || u.include?("riskmap_0") } if kind == :infection
 
-      urls.any? do |u|
-        patterns.any? { |p| u.include?(p) }
-      end
+      false
     end
 
     def min_flag_level(mails, kind)
