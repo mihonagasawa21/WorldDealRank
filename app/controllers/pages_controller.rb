@@ -265,11 +265,12 @@ class PagesController < ApplicationController
   end
 
   def safety_text(country)
-    max = country.safety_max_level.to_i
-    return "危険情報なし" if max <= 0
-
     min = country.safety_min_level
+    max = country.safety_max_level.to_i
+
     return "要確認" if min.nil?
+    return "危険情報なし" if min.to_i <= 0 && max <= 0
+    return "危険情報なし" if min.to_i == 0
 
     min.to_i.to_s
   end
@@ -292,13 +293,11 @@ class PagesController < ApplicationController
 
   def warn_text(country)
     max = country.safety_max_level.to_i
-    return "" if max <= 0
-
     min = country.safety_min_level
-    return "注：一部地域で最大危険レベル#{max}です" if min.nil?
 
-    min_i = min.to_i
-    return "" if max <= min_i
+    return "" if min.nil?
+    return "" if min.to_i >= 2
+    return "" if max <= min.to_i
 
     "注：一部地域で最大危険レベル#{max}です"
   end
