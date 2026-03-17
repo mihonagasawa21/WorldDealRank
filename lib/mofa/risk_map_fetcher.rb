@@ -1,62 +1,129 @@
-def filter_by_safety(list, safety)
-  list.select do |c|
-    min = c.safety_min_level
-    max = c.safety_max_level
+# frozen_string_literal: true
 
-    no_safety_data = min.nil? && (max.nil? || max.to_i <= 0)
+require "faraday"
+require "nokogiri"
 
-    case safety.to_s
-    when "none"
-      no_safety_data
-    when "lv1"
-      next false if no_safety_data
+module Mofa
+  class RiskMapFetcher
+    BASE = "https://www.ezairyu.mofa.go.jp/opendata/country"
 
-      if min.nil?
-        max.to_i <= 1
-      else
-        min.to_i <= 1
+    def initialize(http: default_http)
+      @http = http
+    end
+
+    def apply_to_country!(country)
+      fetched_at = Time.current
+
+      xml = fetch_xml!(country.mofa_country_code)
+      r = parse(xml)
+
+      max = r[:risk_level].to_i
+
+      min_for_store =
+        if !r[:hazard_present]
+          0
+        else
+          r[:risk_min_level]
+        end
+
+      country.update!(
+        safety_risk_level: r[:risk_level],
+        safety_infection_level: r[:infection_level],
+        safety_max_level: max,
+        safety_min_level: min_for_store,
+        safety_level: max,
+        safety_source_updated_at: r[:source_updated_at],
+        safety_fetched_at: fetched_at
+      )
+    end
+
+    private
+
+    def default_http
+      Faraday.new do |f|
+        f.options.timeout = 15
+        f.options.open_timeout = 10
+        f.headers["User-Agent"] = "world-otokudo-ranking/1.0"
+        f.headers["Accept"] = "application/xml,text/xml;q=0.9,*/*;q=0.8"
       end
-    else
-      true
+    end
+
+    def normalize_code(mofa_code)
+      code = mofa_code.to_s.strip
+      raise "mofa_country_code blank" if code.empty?
+
+      code.rjust(4, "0")
+    end
+
+    def fetch_xml!(mofa_code)
+      code = normalize_code(mofa_code)
+
+      url = "#{BASE}/#{code}A.xml"
+      res = @http.get(url)
+      raise "MOFA fetch failed status=#{res.status} url=#{url}" unless res.status == 200
+
+      body = res.body.to_s
+      head = body.lstrip.downcase
+      raise "MOFA returned HTML (not XML) url=#{url}" if head.start_with?("<!doctype", "<html")
+
+      body
+    end
+
+    def parse(xml)
+      doc = Nokogiri::XML(xml)
+      mails = doc.xpath("//mail")
+
+      hazard = mails.select { |m| m.at_xpath("infoType")&.text.to_s.strip == "T40" }
+      infect = mails.select { |m| m.at_xpath("infoType")&.text.to_s.strip == "T41" }
+
+      {
+        risk_level: max_flag_level(hazard, "riskLevel"),
+        infection_level: max_flag_level(infect, "infectionLevel"),
+        risk_min_level: min_flag_level(hazard, "riskLevel"),
+        infection_min_level: min_flag_level(infect, "infectionLevel"),
+        hazard_present: hazard.any?,
+        infect_present: infect.any?,
+        has_level1_risk: any_flag_level?(hazard, "riskLevel", 1),
+        has_level1_infection: any_flag_level?(infect, "infectionLevel", 1),
+        source_updated_at: max_leave_date(mails)
+      }
+    end
+
+    def min_flag_level(mails, prefix)
+      return nil if mails.empty?
+
+      1.upto(4) do |lv|
+        return lv if mails.any? { |m| m.at_xpath("#{prefix}#{lv}")&.text.to_s.strip.upcase == "Y" }
+      end
+
+      nil
+    end
+
+    def max_flag_level(mails, prefix)
+      return 0 if mails.empty?
+
+      4.downto(1) do |lv|
+        return lv if mails.any? { |m| m.at_xpath("#{prefix}#{lv}")&.text.to_s.strip.upcase == "Y" }
+      end
+
+      0
+    end
+
+    def max_leave_date(mails)
+      times = mails.map do |m|
+        s = m.at_xpath("leaveDate")&.text.to_s.strip
+        next if s.empty?
+
+        Time.zone.parse(s.tr("/", "-")) rescue nil
+      end.compact
+
+      times.max
+    end
+
+    def any_flag_level?(mails, prefix, lv)
+      return false if mails.empty?
+
+      mails.any? { |m| m.at_xpath("#{prefix}#{lv}")&.text.to_s.strip.upcase == "Y" }
     end
   end
-end
-
-def safety_text(country)
-  max = country.safety_max_level.to_i
-  return "危険情報なし" if max <= 0
-
-  min = country.safety_min_level
-  return "要確認" if min.nil?
-
-  min.to_i.to_s
-end
-
-def safety_style(country)
-  min = country.safety_min_level
-  max = country.safety_max_level.to_i
-
-  base = "padding:2px 6px;display:inline-block;font-weight:800;border-radius:0;"
-  return base + "background:#e9eefb;" if max <= 0
-  return base + "background:#fff1c9;" if min.nil?
-
-  case min.to_i
-  when 0 then base + "background:#e9eefb;"
-  when 1 then base + "background:#dff5e6;"
-  when 2 then base + "background:#ffe08a;"
-  else        base + "background:#ffd0d0;"
-  end
-end
-
-def warn_text(country)
-  max = country.safety_max_level.to_i
-  return "" if max <= 0
-
-  min = country.safety_min_level
-  return "注：一部地域で最大危険レベル#{max}です" if min.nil?
-
-  min_i = min.to_i
-  return "" if max <= min_i
-
-  "注：一部地域で最大危険レベル#{max}です"
 end
