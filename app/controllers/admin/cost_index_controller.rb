@@ -94,13 +94,21 @@ class Admin::CostIndexController < ApplicationController
   def refresh_risk
     fetcher = Mofa::RiskMapFetcher.new
     updated = 0
+    nil_count = 0
 
     Country.find_each do |country|
       next if country.mofa_country_code.blank?
 
       begin
         fetcher.apply_to_country!(country)
-        updated += 1
+        country.reload
+
+        if country.safety_min_level.present?
+          updated += 1
+        else
+          nil_count += 1
+          Rails.logger.warn "[ADMIN RISK NIL] #{country.id} #{country.name_ja} code=#{country.mofa_country_code}"
+        end
       rescue => e
         Rails.logger.error "[ADMIN RISK] #{country.id} #{country.name_ja} #{e.class}: #{e.message}"
       end
@@ -108,7 +116,7 @@ class Admin::CostIndexController < ApplicationController
 
     @popularity_result = nil
     load_cost_index_debug_data
-    flash.now[:notice] = "危険情報を更新しました（#{updated}件）"
+    flash.now[:notice] = "危険情報を更新しました（minあり=#{updated}件 / minなし=#{nil_count}件）"
     render :index
   rescue => e
     handle_admin_error(e)
