@@ -160,7 +160,7 @@ def alias_names_for(name)
 
   hits = []
 
-  NAME_ALIASES.each do |base, alts|
+  self.class::NAME_ALIASES.each do |base, alts|
     all = [base, *alts]
     normalized_all = all.map { |v| norm(v) }
     if normalized_all.include?(normalized)
