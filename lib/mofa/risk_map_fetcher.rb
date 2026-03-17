@@ -52,7 +52,6 @@ module Mofa
     def normalize_code(mofa_code)
       code = mofa_code.to_s.strip
       raise "mofa_country_code blank" if code.empty?
-
       code.rjust(4, "0")
     end
 
@@ -97,11 +96,15 @@ module Mofa
       }
     end
 
+    def flag_on?(value)
+      %w[1 Y TRUE].include?(value.to_s.strip.upcase)
+    end
+
     def min_flag_level(mails, prefix)
       return nil if mails.empty?
 
       1.upto(4) do |lv|
-        return lv if mails.any? { |m| m.at_xpath("#{prefix}#{lv}")&.text.to_s.strip.upcase == "Y" }
+        return lv if mails.any? { |m| flag_on?(m.at_xpath("#{prefix}#{lv}")&.text) }
       end
 
       nil
@@ -111,7 +114,7 @@ module Mofa
       return 0 if mails.empty?
 
       4.downto(1) do |lv|
-        return lv if mails.any? { |m| m.at_xpath("#{prefix}#{lv}")&.text.to_s.strip.upcase == "Y" }
+        return lv if mails.any? { |m| flag_on?(m.at_xpath("#{prefix}#{lv}")&.text) }
       end
 
       0
@@ -121,7 +124,6 @@ module Mofa
       times = mails.map do |m|
         s = m.at_xpath("leaveDate")&.text.to_s.strip
         next if s.empty?
-
         Time.zone.parse(s.tr("/", "-")) rescue nil
       end.compact
 
@@ -131,7 +133,7 @@ module Mofa
     def any_flag_level?(mails, prefix, lv)
       return false if mails.empty?
 
-      mails.any? { |m| m.at_xpath("#{prefix}#{lv}")&.text.to_s.strip.upcase == "Y" }
+      mails.any? { |m| flag_on?(m.at_xpath("#{prefix}#{lv}")&.text) }
     end
   end
 end
