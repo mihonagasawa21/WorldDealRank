@@ -36,6 +36,7 @@ resources :tags, only: [:show]
   post "admin/cost_index/refresh_ppp"      => "admin/cost_index#refresh_ppp",      as: :refresh_ppp_admin_cost_index
   post "admin/cost_index/refresh_photos" => "admin/cost_index#refresh_photos", as: :refresh_photos_admin_cost_index
   post "admin/cost_index/recalc"           => "admin/cost_index#recalc",           as: :recalc_admin_cost_index
+  post "admin/cost_index/refresh_popularity" => "admin/cost_index#refresh_popularity", as: :refresh_popularity_admin_cost_index
   post "admin/cost_index/refresh_risk" => "admin/cost_index#refresh_risk", as: :refresh_risk_admin_cost_index
   
   root "pages#ranking"
