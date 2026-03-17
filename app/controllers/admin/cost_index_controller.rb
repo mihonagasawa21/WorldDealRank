@@ -95,8 +95,10 @@ class Admin::CostIndexController < ApplicationController
     Rails.logger.warn "=== REFRESH_RISK START ==="
 
     fetcher = Mofa::RiskMapFetcher.new
-    updated = 0
-    nil_count = 0
+    min_present = 0
+    partial_present = 0
+    no_risk_count = 0
+    error_count = 0
 
     Country.find_each do |country|
       next if country.mofa_country_code.blank?
@@ -105,22 +107,28 @@ class Admin::CostIndexController < ApplicationController
         fetcher.apply_to_country!(country)
         country.reload
 
-        if country.safety_min_level.present?
-          updated += 1
+        max = country.safety_max_level.to_i
+        min = country.safety_min_level
+
+        if min.present?
+          min_present += 1
+        elsif max > 0
+          partial_present += 1
+          Rails.logger.warn "[ADMIN RISK PARTIAL] #{country.id} #{country.name_ja} code=#{country.mofa_country_code} max=#{max}"
         else
-          nil_count += 1
-          Rails.logger.warn "[ADMIN RISK NIL] #{country.id} #{country.name_ja} code=#{country.mofa_country_code}"
+          no_risk_count += 1
         end
       rescue => e
+        error_count += 1
         Rails.logger.error "[ADMIN RISK] #{country.id} #{country.name_ja} #{e.class}: #{e.message}"
       end
     end
 
-    Rails.logger.warn "=== REFRESH_RISK END updated=#{updated} nil_count=#{nil_count} ==="
+    Rails.logger.warn "=== REFRESH_RISK END min_present=#{min_present} partial_present=#{partial_present} no_risk_count=#{no_risk_count} error_count=#{error_count} ==="
 
     @popularity_result = nil
     load_cost_index_debug_data
-    flash.now[:notice] = "★★危険情報更新テスト★★ minあり=#{updated} / minなし=#{nil_count}"
+    flash.now[:notice] = "危険情報更新完了 minあり=#{min_present} 部分危険=#{partial_present} 危険情報なし=#{no_risk_count} エラー=#{error_count}"
     render :index
   rescue => e
     handle_admin_error(e)
