@@ -100,8 +100,12 @@ class Admin::CostIndexController < ApplicationController
     no_risk_count = 0
     error_count = 0
 
-    Country.find_each do |country|
+    target_iso3s = %w[THA PAK NGA MYS CHN IND ZAF]
+
+    Country.where(iso3: target_iso3s).find_each do |country|
       next if country.mofa_country_code.blank?
+      next if country.iso3.to_s.upcase == "JPN"
+      next if country.name_ja.to_s.include?("日本")
 
       begin
         fetcher.apply_to_country!(country)
@@ -109,6 +113,8 @@ class Admin::CostIndexController < ApplicationController
 
         max = country.safety_max_level.to_i
         min = country.safety_min_level
+
+        Rails.logger.warn "[ADMIN RISK OK] #{country.id} #{country.name_ja} iso3=#{country.iso3} code=#{country.mofa_country_code} min=#{min.inspect} max=#{max}"
 
         if min.present?
           min_present += 1
