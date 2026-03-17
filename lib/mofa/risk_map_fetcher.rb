@@ -27,10 +27,8 @@ module Mofa
       min_for_store =
         if !r[:hazard_present]
           0
-        elsif r[:has_level1_risk]
-          1
         else
-          nil
+          r[:risk_min_level]
         end
 
       country.update!(
@@ -81,30 +79,18 @@ module Mofa
       doc = Nokogiri::XML(xml)
       mails = doc.xpath("//mail")
 
-      hazard = mails.select do |m|
-        s = info_long(m)
-        s.include?("海外安全情報") && s.include?("危険情報") && !s.include?("感染症")
-      end
-
-      infect = mails.select do |m|
-        s = info_long(m)
-        s.include?("海外安全情報") && s.include?("感染症危険情報")
-      end
+      hazard = mails.select { |m| m.at_xpath("infoType")&.text.to_s.strip == "T40" }
+      infect = mails.select { |m| m.at_xpath("infoType")&.text.to_s.strip == "T41" }
 
       {
         risk_level: max_flag_level(hazard, "riskLevel"),
         infection_level: max_flag_level(infect, "infectionLevel"),
-
-        # 将来使うなら残してOK（現状は apply_to_country! では未使用）
         risk_min_level: min_flag_level(hazard, "riskLevel"),
         infection_min_level: min_flag_level(infect, "infectionLevel"),
-
         hazard_present: hazard.any?,
         infect_present: infect.any?,
-
         has_level1_risk: any_flag_level?(hazard, "riskLevel", 1),
         has_level1_infection: any_flag_level?(infect, "infectionLevel", 1),
-
         source_updated_at: max_leave_date(mails)
       }
     end
@@ -116,7 +102,7 @@ module Mofa
     def min_flag_level(mails, prefix)
       return nil if mails.empty?
       1.upto(4) do |lv|
-        return lv if mails.any? { |m| m.at_xpath("#{prefix}#{lv}")&.text.to_s == "1" }
+        return lv if mails.any? { |m| m.at_xpath("#{prefix}#{lv}")&.text.to_s.strip.upcase == "Y" }
       end
       nil
     end
@@ -124,7 +110,7 @@ module Mofa
     def max_flag_level(mails, prefix)
       return 0 if mails.empty?
       4.downto(1) do |lv|
-        return lv if mails.any? { |m| m.at_xpath("#{prefix}#{lv}")&.text.to_s == "1" }
+        return lv if mails.any? { |m| m.at_xpath("#{prefix}#{lv}")&.text.to_s.strip.upcase == "Y" }
       end
       0
     end
@@ -140,7 +126,7 @@ module Mofa
 
     def any_flag_level?(mails, prefix, lv)
       return false if mails.empty?
-      mails.any? { |m| m.at_xpath("#{prefix}#{lv}")&.text.to_s == "1" }
+      mails.any? { |m| m.at_xpath("#{prefix}#{lv}")&.text.to_s.strip.upcase == "Y" }
     end
   end
 end
