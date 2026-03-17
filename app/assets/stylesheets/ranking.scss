@@ -179,8 +179,8 @@
 
 .top10-photo-note{
   position:absolute;
-  top:8px;
-  left:8px;
+  top:0px;
+  right:0px;
   z-index:2;
   display:inline-block;
   padding:4px 8px;
@@ -188,8 +188,8 @@
   line-height:1.2;
   color:#d00;
   font-weight:700;
-  background:rgba(255,255,255,0.82);
-  border-radius:6px;
+  background:rgba(255,255,255,0.85);
+  border-radius:0px;
   max-width:calc(100% - 16px);
   box-sizing:border-box;
 }

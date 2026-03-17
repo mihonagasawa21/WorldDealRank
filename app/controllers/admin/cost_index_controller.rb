@@ -89,6 +89,32 @@ class Admin::CostIndexController < ApplicationController
   rescue => e
     handle_admin_error(e)
   end
+  
+  def refresh_popularity
+    result = run_popularity_refresh!
+
+    load_cost_index_debug_data
+
+    if result.is_a?(Hash)
+      unmatched_count = Array(result[:unmatched_names]).size
+      unmatched_preview = Array(result[:unmatched_names]).first(20).join(", ")
+
+      msg = +"人気データを更新しました"
+      msg << " total=#{result[:total_rows]}" if result[:total_rows]
+      msg << " matched=#{result[:matched]}" if result[:matched]
+      msg << " updated=#{result[:updated]}" if result[:updated]
+      msg << " unmatched=#{unmatched_count}"
+      msg << " 未一致: #{unmatched_preview}" if unmatched_preview.present?
+
+      flash.now[:notice] = msg
+    else
+      flash.now[:notice] = "人気データを更新しました"
+    end
+
+    render :index
+  rescue => e
+    handle_admin_error(e)
+  end
 
   private
 
@@ -113,26 +139,23 @@ class Admin::CostIndexController < ApplicationController
     return true unless Object.const_defined?(:Popularity)
 
     if Popularity.const_defined?(:MofaResidentImporter) && Popularity::MofaResidentImporter.respond_to?(:refresh_all)
-      Popularity::MofaResidentImporter.refresh_all
-      return true
+      return Popularity::MofaResidentImporter.refresh_all
     end
 
     if Popularity.const_defined?(:MofaResidentImporter)
       importer = Popularity::MofaResidentImporter.new
       if importer.respond_to?(:refresh!)
-        importer.refresh!
-        return true
+        return importer.refresh!
       end
     end
 
     if Popularity.const_defined?(:MofaResidentFetcher) && Popularity::MofaResidentFetcher.respond_to?(:refresh_all)
-      Popularity::MofaResidentFetcher.refresh_all
-      return true
+      return Popularity::MofaResidentFetcher.refresh_all
     end
 
     true
   end
-
+  
   def recalc_indexes_only!
     now = Time.current
 

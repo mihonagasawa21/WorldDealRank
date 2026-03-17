@@ -2,6 +2,31 @@
 
 module Popularity
   class MofaResidentImporter
+
+    NAME_ALIASES = {
+      "韓国" => ["大韓民国", "Republic of Korea", "Korea, Rep.", "KOR"],
+      "大韓民国" => ["韓国", "Republic of Korea", "Korea, Rep.", "KOR"],
+
+      "米国" => ["アメリカ", "アメリカ合衆国", "United States", "United States of America", "USA", "US"],
+      "アメリカ" => ["米国", "アメリカ合衆国", "United States", "United States of America", "USA", "US"],
+      "アメリカ合衆国" => ["米国", "アメリカ", "United States", "United States of America", "USA", "US"],
+
+      "英国" => ["イギリス", "United Kingdom", "UK", "GBR"],
+      "イギリス" => ["英国", "United Kingdom", "UK", "GBR"],
+
+      "ロシア" => ["ロシア連邦", "Russia", "Russian Federation", "RUS"],
+      "ロシア連邦" => ["ロシア", "Russia", "Russian Federation", "RUS"],
+
+      "ベトナム" => ["ベトナム社会主義共和国", "Viet Nam", "Vietnam", "VNM"],
+      "タイ" => ["タイ王国", "Thailand", "THA"],
+      "シンガポール" => ["シンガポール共和国", "Singapore", "SGP"],
+      "チェコ" => ["チェコ共和国", "Czech Republic", "CZE"],
+      "南アフリカ" => ["南アフリカ共和国", "South Africa", "ZAF"],
+      "エジプト" => ["エジプト・アラブ共和国", "Egypt", "EGY"],
+      "パキスタン" => ["パキスタン・イスラム共和国", "Pakistan", "PAK"]
+    }.freeze
+
+
     def self.refresh_all
       new.refresh!
     end
@@ -32,6 +57,7 @@ module Popularity
 
         if targets.empty?
           unmatched << n
+          Rails.logger.warn "[RESIDENT UNMATCHED] #{n}"
           next
         end
 
@@ -72,17 +98,27 @@ module Popularity
 
     def build_name_index
       h = Hash.new { |hh, k| hh[k] = [] }
+
       Country.find_each do |c|
-        h[norm(c.name_ja)] << c
-        h[norm(c.name_en)] << c if c.name_en.present?
-        h[norm(c.iso3)] << c if c.iso3.present?
+        add_index(h, c.name_ja, c)
+        add_index(h, c.name_en, c) if c.name_en.present?
+        add_index(h, c.iso3, c) if c.iso3.present?
       end
+
       h
     end
 
     def find_targets(index, name)
       key = norm(name)
-      return index[key] if index.key?(key) && index[key].any?
+      return [] if key.blank?
+
+      return index[key].uniq if index.key?(key) && index[key].any?
+
+      alias_names_for(name).each do |alt|
+        alt_key = norm(alt)
+        next if alt_key.blank?
+        return index[alt_key].uniq if index.key?(alt_key) && index[alt_key].any?
+      end
 
       hits = []
       index.each do |k, arr|
@@ -103,4 +139,34 @@ module Popularity
       t
     end
   end
+end
+
+def add_index(index, raw_name, country)
+  key = norm(raw_name)
+  return if key.blank?
+
+  index[key] << country
+
+  alias_names_for(raw_name).each do |alt|
+    alt_key = norm(alt)
+    next if alt_key.blank?
+    index[alt_key] << country
+  end
+end
+
+def alias_names_for(name)
+  raw = name.to_s.strip
+  normalized = norm(raw)
+
+  hits = []
+
+  NAME_ALIASES.each do |base, alts|
+    all = [base, *alts]
+    normalized_all = all.map { |v| norm(v) }
+    if normalized_all.include?(normalized)
+      hits.concat(all)
+    end
+  end
+
+  hits.uniq
 end

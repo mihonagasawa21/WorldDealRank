@@ -117,3 +117,15 @@
 .world-right{
   text-align: right;
 }
+.safety-note{
+  display:inline-block;
+  margin-left:6px;
+  padding:2px 6px;
+  font-size:10px;
+  line-height:1.2;
+  color:#c00;
+  font-weight:700;
+  border-radius:4px;
+  vertical-align:middle;
+  white-space:nowrap;
+}
