@@ -148,9 +148,8 @@ class PagesController < ApplicationController
   def filter_by_safety(list, safety)
     list.select do |c|
       min = c.safety_min_level
-      max = c.safety_max_level
 
-      next false if min.nil? && max.nil?
+      next false if min.nil?
 
       case safety.to_s
       when "none"
@@ -266,7 +265,6 @@ class PagesController < ApplicationController
 
   def safety_text(country)
     min = country.safety_min_level
-    max = country.safety_max_level.to_i
 
     return "要確認" if min.nil?
     return "危険情報なし" if min.to_i == 0
@@ -291,14 +289,14 @@ class PagesController < ApplicationController
   end
 
   def warn_text(country)
-    max = country.safety_max_level.to_i
     min = country.safety_min_level
+    max = country.safety_max_level
 
     return "" if min.nil?
-    return "" if min.to_i >= 2
-    return "" if max <= min.to_i
+    return "" if max.nil?
+    return "" if max.to_i <= min.to_i
 
-    "注：一部地域で最大危険レベル#{max}です"
+    "注：一部地域で最大危険レベル#{max.to_i}です"
   end
 
 end
