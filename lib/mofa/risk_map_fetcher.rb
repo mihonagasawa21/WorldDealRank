@@ -86,22 +86,33 @@ module Mofa
       {
         risk_level: max_flag_level(hazard, "riskLevel"),
         infection_level: max_flag_level(infect, "infectionLevel"),
-        risk_min_level: min_flag_level(hazard, "riskLevel"),
-        infection_min_level: min_flag_level(infect, "infectionLevel"),
+        risk_min_level: min_risk_level(hazard, "riskLevel"),
+        infection_min_level: min_risk_level(infect, "infectionLevel"),
         hazard_present: hazard.any?,
         infect_present: infect.any?,
-        has_level1_risk: any_flag_level?(hazard, "riskLevel", 1),
-        has_level1_infection: any_flag_level?(infect, "infectionLevel", 1),
         source_updated_at: max_leave_date(mails)
       }
     end
 
     def flag_on?(value)
       %w[1 Y TRUE].include?(value.to_s.strip.upcase)
-    end
+    end 
 
-    def min_flag_level(mails, prefix)
+    def safe_area_present?(mail, prefix)
+      urls = mail.xpath("mapImageUrl").map { |n| n.text.to_s.strip }
+
+      # 公式例どおり、RiskMap_0 があれば 0 地域ありとみなす
+      return true if prefix == "riskLevel" && urls.any? { |u| u.include?("RiskMap_0") }
+
+      return true if prefix == "infectionLevel" && urls.any? { |u| u.include?("RiskMap_0") }
+
+      false
+    end
+    
+    def min_risk_level(mails, prefix)
       return nil if mails.empty?
+
+      return 0 if mails.any? { |m| safe_area_present?(m, prefix) }
 
       1.upto(4) do |lv|
         return lv if mails.any? { |m| flag_on?(m.at_xpath("#{prefix}#{lv}")&.text) }

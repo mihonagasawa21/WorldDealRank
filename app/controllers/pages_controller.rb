@@ -269,7 +269,6 @@ class PagesController < ApplicationController
     max = country.safety_max_level.to_i
 
     return "要確認" if min.nil?
-    return "危険情報なし" if min.to_i <= 0 && max <= 0
     return "危険情報なし" if min.to_i == 0
 
     min.to_i.to_s
