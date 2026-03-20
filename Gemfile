@@ -20,7 +20,7 @@ gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]
 
 gem "faraday", "~> 2.9"
 gem "faraday-retry", "~> 2.2"
-gem "nokogiri", "~> 1.16"
+gem "nokogiri", "~> 1.19"
 gem "roo", "~> 3.0"
 gem "countries"
 gem "whenever", require: false
