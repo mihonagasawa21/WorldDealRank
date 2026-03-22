@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 ruby "3.2.7"
 
-gem "rails", "~> 7.2.3"
+gem "rails", "~> 8.1.2"
 gem "bootsnap", require: false
 
 # gem "sqlite3", "~> 2.9"
